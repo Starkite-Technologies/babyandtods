@@ -1,0 +1,1477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Babies & Todd's Academy — Smart Early Learning Platform</title>
+<style>
+  :root{
+    --terracotta:#C2552D;
+    --sunset:#E8A33D;
+    --sand:#F4E3C4;
+    --cream:#FBF6EC;
+    --sage:#6B8E5A;
+    --deep:#2B2118;
+    --plum:#5B3A52;
+    --sky:#87B8D1;
+    --coral:#F08070;
+    --muted:#7A6C5D;
+    --line:#E8DDC8;
+    --ok:#3FA66A;
+    --warn:#E0A23A;
+    --bad:#D45B4A;
+    --shadow:0 8px 30px rgba(43,33,24,0.08);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+    background:var(--cream);
+    color:var(--deep);
+    overflow:hidden;
+    height:100vh;
+  }
+  .app{display:flex;height:100vh}
+
+  /* SIDEBAR */
+  .sidebar{
+    width:260px;background:#fff;border-right:1px solid var(--line);
+    display:flex;flex-direction:column;padding:22px 16px;flex-shrink:0;
+  }
+  .logo{
+    display:flex;align-items:center;gap:10px;margin-bottom:28px;padding:6px 8px;
+  }
+  .logo-mark{
+    width:42px;height:42px;border-radius:12px;
+    background:linear-gradient(135deg,var(--terracotta),var(--sunset));
+    display:flex;align-items:center;justify-content:center;
+    font-weight:800;color:#fff;font-size:18px;letter-spacing:-0.5px;
+    box-shadow:0 4px 12px rgba(194,85,45,0.3);
+  }
+  .logo-text .name{font-weight:700;font-size:15px;line-height:1.1}
+  .logo-text .sub{font-size:11px;color:var(--muted);margin-top:2px;letter-spacing:0.5px;text-transform:uppercase}
+
+  .role-switch{
+    background:var(--cream);border-radius:12px;padding:4px;display:flex;margin-bottom:20px;
+  }
+  .role-btn{
+    flex:1;padding:8px 6px;border:none;background:transparent;border-radius:9px;
+    font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;transition:all 0.2s;
+  }
+  .role-btn.active{background:#fff;color:var(--deep);box-shadow:0 2px 6px rgba(0,0,0,0.05)}
+
+  .nav-section{margin-bottom:18px}
+  .nav-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;padding:0 12px 8px;font-weight:600}
+  .nav-item{
+    display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:10px;
+    cursor:pointer;font-size:13.5px;color:var(--deep);transition:all 0.15s;font-weight:500;
+    margin-bottom:2px;
+  }
+  .nav-item:hover{background:var(--cream)}
+  .nav-item.active{background:linear-gradient(135deg,rgba(194,85,45,0.1),rgba(232,163,61,0.1));color:var(--terracotta);font-weight:600}
+  .nav-item .ico{width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:15px}
+  .nav-item .badge{margin-left:auto;background:var(--terracotta);color:#fff;font-size:10px;padding:2px 7px;border-radius:10px;font-weight:700}
+
+  .ai-card{
+    margin-top:auto;background:linear-gradient(135deg,var(--plum),#3a2535);
+    color:#fff;border-radius:14px;padding:14px;
+  }
+  .ai-card .hd{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+  .ai-pulse{width:8px;height:8px;background:var(--sunset);border-radius:50%;animation:pulse 2s infinite}
+  @keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(232,163,61,0.6)}50%{opacity:0.6;box-shadow:0 0 0 8px rgba(232,163,61,0)}}
+  .ai-card .ti{font-size:12px;font-weight:700;letter-spacing:0.5px}
+  .ai-card .ms{font-size:11.5px;line-height:1.5;opacity:0.85;margin-bottom:10px}
+  .ai-card button{background:rgba(255,255,255,0.15);border:none;color:#fff;padding:7px 12px;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;width:100%}
+
+  /* MAIN */
+  .main{flex:1;overflow-y:auto;background:var(--cream)}
+  .topbar{
+    background:#fff;border-bottom:1px solid var(--line);padding:14px 28px;
+    display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;
+  }
+  .crumb{font-size:12px;color:var(--muted);margin-bottom:2px;font-weight:500}
+  .ttl{font-size:19px;font-weight:700}
+  .top-actions{display:flex;align-items:center;gap:14px}
+  .search-box{
+    background:var(--cream);border:1px solid var(--line);border-radius:10px;
+    padding:8px 14px;font-size:13px;width:300px;outline:none;
+  }
+  .top-icon{
+    width:38px;height:38px;border-radius:10px;background:var(--cream);
+    display:flex;align-items:center;justify-content:center;cursor:pointer;
+    position:relative;font-size:16px;
+  }
+  .top-icon .dot{position:absolute;top:8px;right:9px;width:8px;height:8px;background:var(--terracotta);border-radius:50%;border:2px solid var(--cream)}
+  .me{
+    display:flex;align-items:center;gap:10px;padding:4px 12px 4px 4px;
+    background:var(--cream);border-radius:30px;cursor:pointer;
+  }
+  .av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--sage),#4a6c40);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:13px}
+  .me .nm{font-size:13px;font-weight:600}
+  .me .rl{font-size:11px;color:var(--muted)}
+
+  .content{padding:24px 28px}
+
+  /* COMMON */
+  .card{background:#fff;border-radius:16px;padding:20px;box-shadow:var(--shadow);border:1px solid rgba(232,221,200,0.5)}
+  .card-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+  .card-t{font-size:15px;font-weight:700}
+  .pill{display:inline-flex;align-items:center;gap:5px;background:var(--cream);padding:4px 10px;border-radius:12px;font-size:11px;font-weight:600;color:var(--muted)}
+  .pill.ai{background:linear-gradient(135deg,rgba(91,58,82,0.1),rgba(135,184,209,0.1));color:var(--plum)}
+  .pill.ok{background:rgba(63,166,106,0.12);color:var(--ok)}
+  .pill.warn{background:rgba(224,162,58,0.15);color:#a06f1e}
+
+  /* SCREENS */
+  .screen{display:none;animation:fade 0.3s ease}
+  .screen.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+  /* ===== DASHBOARD ===== */
+  .hero{
+    background:linear-gradient(135deg,var(--terracotta),var(--sunset));
+    border-radius:18px;padding:24px;color:#fff;margin-bottom:20px;position:relative;overflow:hidden;
+  }
+  .hero::after{content:"";position:absolute;right:-40px;top:-40px;width:200px;height:200px;background:radial-gradient(circle,rgba(255,255,255,0.15),transparent 60%);border-radius:50%}
+  .hero h1{font-size:22px;font-weight:700;margin-bottom:6px}
+  .hero p{font-size:13.5px;opacity:0.9;line-height:1.55;max-width:560px}
+  .hero-stats{display:flex;gap:24px;margin-top:18px}
+  .hero-stat .v{font-size:22px;font-weight:700;line-height:1}
+  .hero-stat .l{font-size:11.5px;opacity:0.85;margin-top:4px}
+
+  .grid{display:grid;gap:16px}
+  .g-4{grid-template-columns:repeat(4,1fr)}
+  .g-3{grid-template-columns:repeat(3,1fr)}
+  .g-2{grid-template-columns:repeat(2,1fr)}
+  .g-2-1{grid-template-columns:2fr 1fr}
+
+  .stat{padding:16px}
+  .stat .lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;font-weight:600;margin-bottom:6px}
+  .stat .num{font-size:24px;font-weight:700;line-height:1}
+  .stat .sub{font-size:11.5px;color:var(--muted);margin-top:6px;display:flex;align-items:center;gap:4px}
+  .up{color:var(--ok);font-weight:700}
+  .down{color:var(--bad);font-weight:700}
+
+  /* CHILD CARDS */
+  .child-card{background:#fff;border-radius:14px;padding:14px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:all 0.15s;border:1px solid var(--line)}
+  .child-card:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+  .child-av{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:16px;flex-shrink:0}
+  .child-info{flex:1;min-width:0}
+  .child-name{font-size:13.5px;font-weight:700}
+  .child-meta{font-size:11.5px;color:var(--muted);margin-top:2px}
+  .child-status{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+  .status-dot{width:8px;height:8px;border-radius:50%}
+
+  /* AI INSIGHT */
+  .ai-insight{
+    background:linear-gradient(135deg,#FFFBF2,#F4E3C4);
+    border:1px solid rgba(194,85,45,0.15);border-radius:14px;padding:14px;
+    display:flex;gap:12px;align-items:flex-start;
+  }
+  .ai-bubble{
+    width:34px;height:34px;border-radius:10px;
+    background:linear-gradient(135deg,var(--plum),var(--terracotta));
+    display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;flex-shrink:0;
+  }
+  .ai-insight .ti{font-size:12px;font-weight:700;margin-bottom:3px;display:flex;align-items:center;gap:6px}
+  .ai-insight .ms{font-size:12.5px;line-height:1.55;color:var(--deep)}
+
+  /* ACTIVITY FEED */
+  .feed-item{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+  .feed-item:last-child{border:none}
+  .feed-time{font-size:11px;color:var(--muted);min-width:50px;font-weight:600}
+  .feed-icon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+  .feed-text{font-size:12.5px;line-height:1.5;flex:1}
+  .feed-text b{font-weight:700}
+
+  /* MILESTONE BARS */
+  .milestone{margin-bottom:14px}
+  .ms-h{display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px}
+  .ms-h .nm{font-weight:600}
+  .ms-h .pct{color:var(--muted);font-weight:600}
+  .bar{height:7px;background:var(--cream);border-radius:4px;overflow:hidden}
+  .bar-fill{height:100%;border-radius:4px;transition:width 0.4s}
+
+  /* CHILD PROFILE */
+  .profile-hd{display:flex;gap:20px;align-items:center;margin-bottom:18px}
+  .profile-av{width:80px;height:80px;border-radius:24px;background:linear-gradient(135deg,var(--coral),var(--sunset));display:flex;align-items:center;justify-content:center;color:#fff;font-size:30px;font-weight:700;flex-shrink:0}
+  .profile-name{font-size:24px;font-weight:700}
+  .profile-meta{display:flex;gap:18px;margin-top:8px;flex-wrap:wrap;font-size:12.5px;color:var(--muted)}
+  .profile-meta span{display:flex;align-items:center;gap:5px}
+
+  .tab-row{display:flex;gap:6px;border-bottom:1px solid var(--line);margin-bottom:18px}
+  .tab{padding:10px 14px;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}
+  .tab.active{color:var(--terracotta);border-color:var(--terracotta)}
+
+  /* TIMELINE */
+  .timeline{position:relative;padding-left:22px}
+  .timeline::before{content:"";position:absolute;left:7px;top:6px;bottom:6px;width:2px;background:var(--line)}
+  .tl-item{position:relative;padding:0 0 16px 14px}
+  .tl-item::before{content:"";position:absolute;left:-18px;top:6px;width:14px;height:14px;border-radius:50%;background:#fff;border:3px solid var(--terracotta)}
+  .tl-time{font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.5px}
+  .tl-title{font-size:13px;font-weight:700;margin-top:2px}
+  .tl-desc{font-size:12px;color:var(--muted);margin-top:3px;line-height:1.5}
+  .tl-photos{display:flex;gap:6px;margin-top:8px}
+  .tl-photo{width:60px;height:60px;border-radius:10px;background:linear-gradient(135deg,var(--sand),var(--sunset));display:flex;align-items:center;justify-content:center;font-size:22px}
+
+  /* CURRICULUM */
+  .curr-card{padding:16px;border-radius:14px;color:#fff;cursor:pointer;position:relative;overflow:hidden;min-height:130px;display:flex;flex-direction:column;justify-content:space-between}
+  .curr-card .em{font-size:32px}
+  .curr-card .nm{font-size:14px;font-weight:700;margin-top:8px}
+  .curr-card .ds{font-size:11.5px;opacity:0.85;margin-top:3px}
+  .curr-1{background:linear-gradient(135deg,var(--coral),var(--terracotta))}
+  .curr-2{background:linear-gradient(135deg,var(--sky),#5a92b0)}
+  .curr-3{background:linear-gradient(135deg,var(--sage),#4a6c40)}
+  .curr-4{background:linear-gradient(135deg,var(--sunset),#c5851c)}
+  .curr-5{background:linear-gradient(135deg,var(--plum),#3a2535)}
+  .curr-6{background:linear-gradient(135deg,#8B6F47,#5d4a30)}
+
+  /* PHOTOS */
+  .photo-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+  .photo{height:130px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:38px;cursor:pointer;transition:transform 0.15s}
+  .photo:hover{transform:scale(1.02)}
+
+  /* MESSAGES */
+  .chat-layout{display:grid;grid-template-columns:300px 1fr;gap:0;background:#fff;border-radius:16px;overflow:hidden;border:1px solid var(--line);height:580px}
+  .chat-list{border-right:1px solid var(--line);overflow-y:auto}
+  .chat-search{padding:12px;border-bottom:1px solid var(--line)}
+  .chat-search input{width:100%;background:var(--cream);border:none;border-radius:8px;padding:8px 12px;font-size:12px;outline:none}
+  .chat-item{padding:12px 14px;display:flex;gap:10px;cursor:pointer;border-bottom:1px solid var(--line);align-items:center}
+  .chat-item.active{background:var(--cream)}
+  .chat-item:hover{background:var(--cream)}
+  .chat-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:12px;flex-shrink:0}
+  .chat-info{flex:1;min-width:0}
+  .chat-name{font-size:12.5px;font-weight:700;display:flex;justify-content:space-between}
+  .chat-name .tm{font-size:10px;color:var(--muted);font-weight:500}
+  .chat-prev{font-size:11.5px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+  .chat-panel{display:flex;flex-direction:column}
+  .chat-head{padding:14px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px}
+  .chat-body{flex:1;overflow-y:auto;padding:18px;background:#FBF8F1}
+  .msg{margin-bottom:12px;max-width:75%}
+  .msg.out{margin-left:auto}
+  .msg .bub{padding:10px 13px;border-radius:14px;font-size:12.5px;line-height:1.5;background:#fff;border:1px solid var(--line)}
+  .msg.out .bub{background:linear-gradient(135deg,var(--terracotta),var(--sunset));color:#fff;border:none}
+  .msg .tm{font-size:10px;color:var(--muted);margin-top:3px}
+  .msg.out .tm{text-align:right}
+  .ai-tag{display:inline-flex;align-items:center;gap:4px;background:rgba(91,58,82,0.1);color:var(--plum);padding:2px 8px;border-radius:8px;font-size:10px;font-weight:700;margin-bottom:4px}
+  .chat-input{padding:14px 18px;border-top:1px solid var(--line);display:flex;gap:8px;align-items:center}
+  .chat-input input{flex:1;background:var(--cream);border:none;border-radius:20px;padding:10px 16px;font-size:13px;outline:none}
+  .chat-input button{background:linear-gradient(135deg,var(--terracotta),var(--sunset));color:#fff;border:none;width:38px;height:38px;border-radius:50%;cursor:pointer}
+
+  /* CHECK-IN */
+  .checkin-screen{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  .qr-display{background:linear-gradient(135deg,var(--plum),#2a1c25);border-radius:18px;padding:24px;color:#fff;text-align:center;min-height:420px;display:flex;flex-direction:column;justify-content:center;align-items:center}
+  .qr-box{width:200px;height:200px;background:#fff;border-radius:18px;display:flex;align-items:center;justify-content:center;margin-bottom:18px;position:relative}
+  .qr-pattern{width:160px;height:160px;background-image:repeating-linear-gradient(0deg,var(--deep) 0,var(--deep) 8px,transparent 8px,transparent 16px),repeating-linear-gradient(90deg,var(--deep) 0,var(--deep) 8px,transparent 8px,transparent 16px);opacity:0.85;border-radius:6px}
+
+  .recent-checkin{display:flex;align-items:center;gap:12px;padding:10px;background:var(--cream);border-radius:10px;margin-bottom:8px}
+  .checkin-time{font-size:11px;color:var(--muted);font-weight:600;margin-left:auto}
+
+  /* BILLING */
+  .invoice-row{display:grid;grid-template-columns:1fr 100px 100px 100px 80px;padding:12px;font-size:12.5px;border-bottom:1px solid var(--line);align-items:center}
+  .invoice-row.h{font-weight:700;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:0.5px}
+  .invoice-status{display:inline-block;padding:3px 9px;border-radius:10px;font-size:10.5px;font-weight:700}
+  .st-paid{background:rgba(63,166,106,0.15);color:var(--ok)}
+  .st-pending{background:rgba(224,162,58,0.15);color:#a06f1e}
+  .st-overdue{background:rgba(212,91,74,0.15);color:var(--bad)}
+
+  /* ADMIN STATS */
+  .admin-stat{background:#fff;border-radius:14px;padding:18px;border:1px solid var(--line)}
+  .as-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+  .as-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px}
+
+  .table{width:100%;border-collapse:collapse}
+  .table th{text-align:left;padding:10px 12px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;font-weight:700;border-bottom:1px solid var(--line)}
+  .table td{padding:12px;font-size:12.5px;border-bottom:1px solid var(--line)}
+
+  /* CHART */
+  .chart-svg{width:100%;height:200px}
+
+  /* SAFETY */
+  .alert-card{display:flex;gap:12px;padding:14px;border-radius:12px;align-items:flex-start;margin-bottom:10px}
+  .alert-warn{background:rgba(224,162,58,0.1);border-left:3px solid var(--warn)}
+  .alert-ok{background:rgba(63,166,106,0.08);border-left:3px solid var(--ok)}
+  .alert-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+
+  /* TRIBE/HERITAGE */
+  .heritage-card{background:linear-gradient(135deg,var(--terracotta),var(--plum));color:#fff;border-radius:16px;padding:20px;position:relative;overflow:hidden}
+  .heritage-card::after{content:"";position:absolute;right:-30px;bottom:-30px;width:150px;height:150px;background:radial-gradient(circle,rgba(255,255,255,0.1),transparent 60%);border-radius:50%}
+
+  .lang-pill{display:inline-block;padding:6px 12px;background:rgba(255,255,255,0.15);border-radius:14px;font-size:11.5px;margin:3px;cursor:pointer;transition:all 0.15s}
+  .lang-pill:hover, .lang-pill.active{background:rgba(255,255,255,0.3)}
+
+  /* RESPONSIVE-ISH */
+  @media (max-width:1100px){.g-4{grid-template-columns:repeat(2,1fr)}.g-3{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ============= SIDEBAR ============= -->
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-mark">B&amp;T</div>
+      <div class="logo-text">
+        <div class="name">Babies &amp; Todd's</div>
+        <div class="sub">Academy</div>
+      </div>
+    </div>
+
+    <div class="role-switch">
+      <button class="role-btn active" data-role="parent" onclick="switchRole('parent')">Parent</button>
+      <button class="role-btn" data-role="teacher" onclick="switchRole('teacher')">Teacher</button>
+      <button class="role-btn" data-role="admin" onclick="switchRole('admin')">Admin</button>
+    </div>
+
+    <div class="nav-section" id="nav-parent">
+      <div class="nav-label">My Children</div>
+      <div class="nav-item active" onclick="show('dashboard',this)"><span class="ico">🏠</span> Dashboard</div>
+      <div class="nav-item" onclick="show('profile',this)"><span class="ico">👶</span> Amara's Day</div>
+      <div class="nav-item" onclick="show('curriculum',this)"><span class="ico">📚</span> Learning</div>
+      <div class="nav-item" onclick="show('photos',this)"><span class="ico">📷</span> Memories <span class="badge">12</span></div>
+      <div class="nav-item" onclick="show('messages',this)"><span class="ico">💬</span> Messages <span class="badge">3</span></div>
+      <div class="nav-item" onclick="show('checkin',this)"><span class="ico">📍</span> Check-In</div>
+      <div class="nav-item" onclick="show('billing',this)"><span class="ico">💳</span> Billing</div>
+      <div class="nav-item" onclick="show('heritage',this)"><span class="ico">🌍</span> Heritage Corner</div>
+    </div>
+
+    <div class="nav-section" id="nav-admin" style="display:none">
+      <div class="nav-label">Operations</div>
+      <div class="nav-item active" onclick="show('admin',this)"><span class="ico">📊</span> Director Dashboard</div>
+      <div class="nav-item" onclick="show('roster',this)"><span class="ico">👥</span> Learner Roster</div>
+      <div class="nav-item" onclick="show('staff',this)"><span class="ico">👩‍🏫</span> Staff &amp; Payroll</div>
+      <div class="nav-item" onclick="show('safety',this)"><span class="ico">🛡️</span> AI Safety Monitor</div>
+      <div class="nav-item" onclick="show('finance',this)"><span class="ico">💰</span> Finance</div>
+      <div class="nav-item" onclick="show('compliance',this)"><span class="ico">📋</span> Compliance</div>
+    </div>
+
+    <div class="ai-card">
+      <div class="hd">
+        <div class="ai-pulse"></div>
+        <div class="ti">AKILI · AI ASSISTANT</div>
+      </div>
+      <div class="ms" id="ai-tip">Amara hit a new milestone today — she shared toys without prompting twice this morning. 🎉</div>
+      <button onclick="rotateTip()">Ask Akili anything →</button>
+    </div>
+  </aside>
+
+  <!-- ============= MAIN ============= -->
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <div class="crumb" id="crumb">Parent · Dashboard</div>
+        <div class="ttl" id="ttl">Good morning, Assumpta 👋</div>
+      </div>
+      <div class="top-actions">
+        <input class="search-box" placeholder="Search learners, lessons, invoices…">
+        <div class="top-icon">🔔<span class="dot"></span></div>
+        <div class="top-icon">⚙️</div>
+        <div class="me">
+          <div class="av">AG</div>
+          <div>
+            <div class="nm">Assumpta G.</div>
+            <div class="rl">Director · Windhoek</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- ============ DASHBOARD (PARENT) ============ -->
+      <section class="screen active" id="dashboard">
+        <div class="hero">
+          <h1>Amara had a wonderful morning 🌞</h1>
+          <p>She's currently in <b>Sunshine Class</b> with Teacher Johanna. AI captured 4 milestone moments today and her mood has been "joyful" for 3 days running. Pickup window opens at 16:00.</p>
+          <div class="hero-stats">
+            <div class="hero-stat"><div class="v">9h 12m</div><div class="l">At the Academy today</div></div>
+            <div class="hero-stat"><div class="v">94%</div><div class="l">Lunch eaten</div></div>
+            <div class="hero-stat"><div class="v">2h 05m</div><div class="l">Nap quality: Deep</div></div>
+            <div class="hero-stat"><div class="v">4</div><div class="l">Photos shared</div></div>
+          </div>
+        </div>
+
+        <div class="grid g-4" style="margin-bottom:20px">
+          <div class="card stat">
+            <div class="lbl">Mood Today</div>
+            <div class="num" style="color:var(--ok)">😊 Joyful</div>
+            <div class="sub"><span class="up">↑</span> AI confidence 96%</div>
+          </div>
+          <div class="card stat">
+            <div class="lbl">Activities</div>
+            <div class="num">7 / 9</div>
+            <div class="sub">Story circle, art, water play +4</div>
+          </div>
+          <div class="card stat">
+            <div class="lbl">Social Interactions</div>
+            <div class="num">12</div>
+            <div class="sub"><span class="up">↑ 3</span> vs. last week</div>
+          </div>
+          <div class="card stat">
+            <div class="lbl">Next Pickup</div>
+            <div class="num">16:00</div>
+            <div class="sub">QR ready · tap Check-In</div>
+          </div>
+        </div>
+
+        <div class="grid g-2-1" style="margin-bottom:20px">
+          <div class="card">
+            <div class="card-h">
+              <div class="card-t">Today's Live Feed</div>
+              <span class="pill ai">🪄 AI auto-tagged</span>
+            </div>
+            <div class="timeline">
+              <div class="tl-item">
+                <div class="tl-time">14:42 · Sunshine Class</div>
+                <div class="tl-title">Independent Reading 📖</div>
+                <div class="tl-desc">Amara picked "The Lion Cubs of Etosha" and turned every page herself. Vocabulary: <i>roar, savannah, brave</i>.</div>
+                <div class="tl-photos"><div class="tl-photo">📖</div><div class="tl-photo">🦁</div></div>
+              </div>
+              <div class="tl-item">
+                <div class="tl-time">12:15 · Dining Hall</div>
+                <div class="tl-title">Lunch · Bobotie with veggies 🍛</div>
+                <div class="tl-desc">Ate 94% of her plate. Tried a new vegetable (butternut) without prompting.</div>
+              </div>
+              <div class="tl-item">
+                <div class="tl-time">10:30 · Garden</div>
+                <div class="tl-title">Outdoor Play 🌳</div>
+                <div class="tl-desc">Joined the climbing frame group. <b>Milestone: shared toys without being asked (2x)</b>.</div>
+                <div class="tl-photos"><div class="tl-photo">🌳</div><div class="tl-photo">🤸</div><div class="tl-photo">🎈</div></div>
+              </div>
+              <div class="tl-item">
+                <div class="tl-time">08:14 · Reception</div>
+                <div class="tl-title">Arrived with Mom ✨</div>
+                <div class="tl-desc">QR check-in complete. Temperature 36.6°C · No allergens reported today.</div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="card" style="margin-bottom:14px">
+              <div class="card-h">
+                <div class="card-t">🤖 Akili Insight</div>
+                <span class="pill ai">Weekly</span>
+              </div>
+              <div class="ai-insight">
+                <div class="ai-bubble">✨</div>
+                <div>
+                  <div class="ti">Social-emotional growth spurt</div>
+                  <div class="ms">Amara is sharing 3× more this week than last. This is a typical 3.5-year milestone — try our "Kindness Bingo" card at home tonight to reinforce it.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-h"><div class="card-t">Development Milestones</div><span class="pill">Age 3y 4m</span></div>
+              <div class="milestone">
+                <div class="ms-h"><span class="nm">Language</span><span class="pct">87%</span></div>
+                <div class="bar"><div class="bar-fill" style="width:87%;background:linear-gradient(90deg,var(--coral),var(--terracotta))"></div></div>
+              </div>
+              <div class="milestone">
+                <div class="ms-h"><span class="nm">Motor Skills</span><span class="pct">92%</span></div>
+                <div class="bar"><div class="bar-fill" style="width:92%;background:linear-gradient(90deg,var(--sage),#4a6c40)"></div></div>
+              </div>
+              <div class="milestone">
+                <div class="ms-h"><span class="nm">Social</span><span class="pct">79%</span></div>
+                <div class="bar"><div class="bar-fill" style="width:79%;background:linear-gradient(90deg,var(--sky),#5a92b0)"></div></div>
+              </div>
+              <div class="milestone">
+                <div class="ms-h"><span class="nm">Cognitive</span><span class="pct">81%</span></div>
+                <div class="bar"><div class="bar-fill" style="width:81%;background:linear-gradient(90deg,var(--sunset),#c5851c)"></div></div>
+              </div>
+              <div class="milestone">
+                <div class="ms-h"><span class="nm">Self-care</span><span class="pct">68%</span></div>
+                <div class="bar"><div class="bar-fill" style="width:68%;background:linear-gradient(90deg,var(--plum),#3a2535)"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid g-3">
+          <div class="card">
+            <div class="card-h"><div class="card-t">Tomorrow's Plan</div></div>
+            <div style="font-size:12.5px;line-height:1.7">
+              <div>🎨 <b>Art Studio:</b> Mud painting</div>
+              <div>🎶 <b>Music Circle:</b> Counting in Oshiwambo</div>
+              <div>🥗 <b>Lunch:</b> Chicken &amp; rice + carrots</div>
+              <div>🌱 <b>Field activity:</b> Plant marigold seeds</div>
+              <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--line);color:var(--muted);font-size:11.5px">Bring: floppy hat &amp; closed-toe shoes</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-h"><div class="card-t">Health Snapshot</div><span class="pill ok">All clear</span></div>
+            <div style="font-size:12.5px;line-height:1.8">
+              <div>🌡️ Temperature: <b>36.6°C</b> (normal)</div>
+              <div>💧 Hydration: <b>6 cups</b></div>
+              <div>🚽 Bathroom: <b>3 visits</b></div>
+              <div>😴 Sleep last night (you logged): <b>10h 30m</b></div>
+              <div style="margin-top:10px;color:var(--muted);font-size:11.5px">⚠️ Reminder: Allergies on file — peanuts. Kitchen is peanut-free today.</div>
+            </div>
+          </div>
+
+          <div class="card" style="background:linear-gradient(135deg,#FFFBF2,#F4E3C4);border:1px solid rgba(194,85,45,0.2)">
+            <div class="card-h"><div class="card-t">📣 Academy News</div></div>
+            <div style="font-size:12.5px;line-height:1.55">
+              <b>Heritage Day Celebration · 26 August</b>
+              <p style="margin-top:6px;color:var(--muted)">Children may wear traditional Namibian attire. We'll be making fat cakes &amp; learning a Damara folk song. Bring an extra change of clothes — there will be face painting!</p>
+              <button style="margin-top:12px;background:var(--terracotta);color:#fff;border:none;padding:8px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer">RSVP →</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ CHILD PROFILE ============ -->
+      <section class="screen" id="profile">
+        <div class="card" style="margin-bottom:18px">
+          <div class="profile-hd">
+            <div class="profile-av">A</div>
+            <div style="flex:1">
+              <div class="profile-name">Amara Shikongo</div>
+              <div class="profile-meta">
+                <span>🎂 3 years, 4 months</span>
+                <span>☀️ Sunshine Class</span>
+                <span>👩‍🏫 Teacher Johanna</span>
+                <span>📍 Currently: Art Studio</span>
+                <span style="color:var(--bad)">⚠️ Allergies: Peanuts</span>
+              </div>
+            </div>
+            <div style="text-align:right">
+              <div style="font-size:11px;color:var(--muted);font-weight:600">CHECKED IN</div>
+              <div style="font-size:18px;font-weight:700;color:var(--ok)">08:14 today</div>
+            </div>
+          </div>
+          <div class="tab-row">
+            <div class="tab active">Today</div>
+            <div class="tab">Development</div>
+            <div class="tab">Health</div>
+            <div class="tab">Portfolio</div>
+            <div class="tab">Permissions</div>
+          </div>
+
+          <div class="grid g-3">
+            <div>
+              <h4 style="font-size:13px;margin-bottom:10px">🥗 Nutrition Today</h4>
+              <div style="font-size:12.5px;line-height:1.8;color:var(--muted)">
+                <div><b style="color:var(--deep)">Breakfast:</b> Oats &amp; banana (100%)</div>
+                <div><b style="color:var(--deep)">Snack:</b> Apple slices (100%)</div>
+                <div><b style="color:var(--deep)">Lunch:</b> Bobotie (94%)</div>
+                <div><b style="color:var(--deep)">Snack:</b> Yogurt (pending 15:00)</div>
+              </div>
+            </div>
+            <div>
+              <h4 style="font-size:13px;margin-bottom:10px">😴 Rest Pattern</h4>
+              <svg class="chart-svg" viewBox="0 0 300 120">
+                <defs><linearGradient id="napg" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#5B3A52" stop-opacity="0.6"/><stop offset="100%" stop-color="#5B3A52" stop-opacity="0.05"/></linearGradient></defs>
+                <path d="M0,80 L40,75 L80,40 L120,30 L160,35 L200,55 L240,45 L280,30 L300,40 L300,120 L0,120 Z" fill="url(#napg)"/>
+                <path d="M0,80 L40,75 L80,40 L120,30 L160,35 L200,55 L240,45 L280,30 L300,40" stroke="#5B3A52" stroke-width="2" fill="none"/>
+              </svg>
+              <div style="font-size:11.5px;color:var(--muted);margin-top:4px">Last 7 days · avg 2h 12m</div>
+            </div>
+            <div>
+              <h4 style="font-size:13px;margin-bottom:10px">🪄 Akili Pattern Spot</h4>
+              <div class="ai-insight" style="margin:0">
+                <div class="ai-bubble">📈</div>
+                <div>
+                  <div class="ti">Vocabulary acceleration</div>
+                  <div class="ms">Amara used <b>17 new words</b> this week — 40% above her age band. Continue the bilingual storytime.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid g-2-1">
+          <div class="card">
+            <div class="card-h"><div class="card-t">Full Daily Timeline</div><span class="pill ai">AI-generated</span></div>
+            <div class="timeline">
+              <div class="tl-item">
+                <div class="tl-time">15:00 · Now</div>
+                <div class="tl-title">Art Studio — finger painting 🎨</div>
+                <div class="tl-desc">Working on a mango tree painting for Heritage Day.</div>
+              </div>
+              <div class="tl-item">
+                <div class="tl-time">14:42</div>
+                <div class="tl-title">Independent reading 📖</div>
+                <div class="tl-desc">"The Lion Cubs of Etosha"</div>
+              </div>
+              <div class="tl-item">
+                <div class="tl-time">13:00</div>
+                <div class="tl-title">Nap time 😴</div>
+                <div class="tl-desc">2h 05m — Deep rest pattern detected.</div>
+              </div>
+              <div class="tl-item">
+                <div class="tl-time">12:15</div>
+                <div class="tl-title">Lunch — Bobotie 🍛</div>
+                <div class="tl-desc">Ate 94%. New veg: butternut ✅</div>
+              </div>
+              <div class="tl-item">
+                <div class="tl-time">10:30</div>
+                <div class="tl-title">Outdoor play 🌳</div>
+                <div class="tl-desc">Shared toys 2x (milestone moment).</div>
+              </div>
+              <div class="tl-item">
+                <div class="tl-time">08:14</div>
+                <div class="tl-title">Check-in ✅</div>
+                <div class="tl-desc">Temperature 36.6°C · Mom dropped off.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-h"><div class="card-t">Quick Actions</div></div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <button class="qa-btn" style="background:var(--cream);border:1px solid var(--line);padding:11px;border-radius:10px;text-align:left;font-size:12.5px;cursor:pointer">🎤 Send voice note to Teacher Johanna</button>
+              <button class="qa-btn" style="background:var(--cream);border:1px solid var(--line);padding:11px;border-radius:10px;text-align:left;font-size:12.5px;cursor:pointer">⏰ Update today's pickup time</button>
+              <button class="qa-btn" style="background:var(--cream);border:1px solid var(--line);padding:11px;border-radius:10px;text-align:left;font-size:12.5px;cursor:pointer">💊 Log medication / report illness</button>
+              <button class="qa-btn" style="background:var(--cream);border:1px solid var(--line);padding:11px;border-radius:10px;text-align:left;font-size:12.5px;cursor:pointer">👤 Authorize new pickup person</button>
+              <button class="qa-btn" style="background:var(--cream);border:1px solid var(--line);padding:11px;border-radius:10px;text-align:left;font-size:12.5px;cursor:pointer">📅 Book a parent-teacher meeting</button>
+              <button class="qa-btn" style="background:linear-gradient(135deg,var(--terracotta),var(--sunset));color:#fff;border:none;padding:11px;border-radius:10px;text-align:left;font-size:12.5px;cursor:pointer;font-weight:600">✨ Ask Akili AI about Amara</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ CURRICULUM ============ -->
+      <section class="screen" id="curriculum">
+        <div class="card" style="margin-bottom:18px">
+          <div class="card-h">
+            <div>
+              <div class="card-t">Personalized Learning Path</div>
+              <div style="font-size:12px;color:var(--muted);margin-top:3px">Powered by Akili AI · Aligned to Namibia ECD framework + Montessori principles</div>
+            </div>
+            <span class="pill ai">🎯 Tailored for Amara · 3y 4m</span>
+          </div>
+
+          <div class="grid g-3">
+            <div class="curr-card curr-1">
+              <div class="em">🗣️</div>
+              <div>
+                <div class="nm">Language &amp; Literacy</div>
+                <div class="ds">Phonics, storytelling, bilingual play (English + Oshiwambo)</div>
+              </div>
+            </div>
+            <div class="curr-card curr-2">
+              <div class="em">🔢</div>
+              <div>
+                <div class="nm">Numeracy &amp; Logic</div>
+                <div class="ds">Counting, sorting, pattern recognition through games</div>
+              </div>
+            </div>
+            <div class="curr-card curr-3">
+              <div class="em">🌱</div>
+              <div>
+                <div class="nm">Science &amp; Nature</div>
+                <div class="ds">Garden lab, animals of Namibia, weather watching</div>
+              </div>
+            </div>
+            <div class="curr-card curr-4">
+              <div class="em">🎨</div>
+              <div>
+                <div class="nm">Art &amp; Creativity</div>
+                <div class="ds">Painting, clay, mud sculpture, music exploration</div>
+              </div>
+            </div>
+            <div class="curr-card curr-5">
+              <div class="em">🤝</div>
+              <div>
+                <div class="nm">Social-Emotional</div>
+                <div class="ds">Empathy circles, sharing games, mindfulness for tots</div>
+              </div>
+            </div>
+            <div class="curr-card curr-6">
+              <div class="em">💪</div>
+              <div>
+                <div class="nm">Body &amp; Movement</div>
+                <div class="ds">Gross motor play, yoga for kids, sand activities</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid g-2">
+          <div class="card">
+            <div class="card-h"><div class="card-t">This Week's Theme</div><span class="pill" style="background:rgba(232,163,61,0.2);color:#a06f1e">🐘 Animals of Etosha</span></div>
+            <div style="font-size:12.5px;line-height:1.7;color:var(--muted)">
+              <b style="color:var(--deep)">Monday — Explore:</b> Meet the elephants &amp; their families<br>
+              <b style="color:var(--deep)">Tuesday — Create:</b> Paint a watering hole<br>
+              <b style="color:var(--deep)">Wednesday — Move:</b> Animal yoga (lion, giraffe, zebra)<br>
+              <b style="color:var(--deep)">Thursday — Count:</b> How many zebras in our circle?<br>
+              <b style="color:var(--deep)">Friday — Story:</b> "Why the Elephant Has a Long Trunk"
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-h"><div class="card-t">🪄 Akili recommends for home</div></div>
+            <div class="ai-insight" style="margin-bottom:10px">
+              <div class="ai-bubble">📖</div>
+              <div>
+                <div class="ti">5-minute bedtime activity</div>
+                <div class="ms">Amara's vocabulary is accelerating. Tonight, read together and let her finish the last word of each sentence. Try the free <i>"Mama Mouse"</i> e-book in your app.</div>
+              </div>
+            </div>
+            <div class="ai-insight">
+              <div class="ai-bubble">🤲</div>
+              <div>
+                <div class="ti">Weekend kindness challenge</div>
+                <div class="ms">She just hit a sharing milestone — invite a cousin over and play her favorite turn-taking game "Stack the Cups". Send us a video!</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ PHOTOS / MEMORIES ============ -->
+      <section class="screen" id="photos">
+        <div class="card" style="margin-bottom:18px">
+          <div class="card-h">
+            <div>
+              <div class="card-t">Memories from Today</div>
+              <div style="font-size:12px;color:var(--muted);margin-top:3px">12 photos · 2 short videos · auto-curated by Akili</div>
+            </div>
+            <div style="display:flex;gap:6px">
+              <span class="pill">All</span>
+              <span class="pill ai">⭐ Best moments</span>
+              <span class="pill">📹 Videos</span>
+            </div>
+          </div>
+          <div class="photo-grid">
+            <div class="photo" style="background:linear-gradient(135deg,#FFE9C8,#F4B85F)">🎨</div>
+            <div class="photo" style="background:linear-gradient(135deg,#FDD6CE,#F08070)">🤸</div>
+            <div class="photo" style="background:linear-gradient(135deg,#D5EAF5,#87B8D1)">📖</div>
+            <div class="photo" style="background:linear-gradient(135deg,#DCE9D2,#8AAE74)">🌳</div>
+            <div class="photo" style="background:linear-gradient(135deg,#EBE0D2,#B89A78)">🎶</div>
+            <div class="photo" style="background:linear-gradient(135deg,#FDD6CE,#F08070)">😊</div>
+            <div class="photo" style="background:linear-gradient(135deg,#FFE9C8,#F4B85F)">🍛</div>
+            <div class="photo" style="background:linear-gradient(135deg,#D5EAF5,#87B8D1)">💧</div>
+          </div>
+        </div>
+
+        <div class="grid g-2">
+          <div class="card">
+            <div class="card-h"><div class="card-t">📅 The Year So Far</div></div>
+            <div style="font-size:12.5px;line-height:1.7;color:var(--muted)">
+              <div>🌟 <b style="color:var(--deep)">347 photos</b> tagged this year</div>
+              <div>📍 <b style="color:var(--deep)">28 milestone moments</b> captured</div>
+              <div>🎬 <b style="color:var(--deep)">12 highlight reels</b> auto-generated</div>
+              <div>🎨 <b style="color:var(--deep)">9 artworks</b> in Amara's portfolio</div>
+            </div>
+            <button style="margin-top:14px;background:var(--terracotta);color:#fff;border:none;padding:9px 16px;border-radius:8px;font-size:12.5px;font-weight:600;cursor:pointer">📥 Download year-end book (PDF)</button>
+          </div>
+
+          <div class="card heritage-card">
+            <div style="font-size:13px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;opacity:0.85">🌍 Akili Storyteller</div>
+            <div style="font-size:16px;font-weight:700;margin-top:6px">Amara's Adventures: Chapter 8</div>
+            <p style="font-size:12.5px;line-height:1.6;opacity:0.9;margin-top:8px;position:relative;z-index:1">AI weaves Amara's milestone photos into a personalised illustrated storybook each month. This month's title: "<i>Amara and the Mango Tree</i>".</p>
+            <button style="margin-top:14px;background:#fff;color:var(--terracotta);border:none;padding:9px 16px;border-radius:8px;font-size:12.5px;font-weight:700;cursor:pointer;position:relative;z-index:1">Read the story →</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ MESSAGES ============ -->
+      <section class="screen" id="messages">
+        <div class="chat-layout">
+          <div class="chat-list">
+            <div class="chat-search"><input placeholder="Search conversations…"></div>
+            <div class="chat-item active">
+              <div class="chat-av" style="background:linear-gradient(135deg,var(--terracotta),var(--sunset))">JF</div>
+              <div class="chat-info">
+                <div class="chat-name">Teacher Johanna <span class="tm">2m</span></div>
+                <div class="chat-prev">Amara had such a beautiful…</div>
+              </div>
+            </div>
+            <div class="chat-item">
+              <div class="chat-av" style="background:linear-gradient(135deg,var(--plum),#3a2535)">AK</div>
+              <div class="chat-info">
+                <div class="chat-name">Akili AI <span class="tm">8m</span></div>
+                <div class="chat-prev">Here's your weekly summary →</div>
+              </div>
+            </div>
+            <div class="chat-item">
+              <div class="chat-av" style="background:linear-gradient(135deg,var(--sage),#4a6c40)">AG</div>
+              <div class="chat-info">
+                <div class="chat-name">Director Assumpta <span class="tm">1h</span></div>
+                <div class="chat-prev">Reminder: fees due 28 Jun</div>
+              </div>
+            </div>
+            <div class="chat-item">
+              <div class="chat-av" style="background:linear-gradient(135deg,var(--coral),var(--terracotta))">KB</div>
+              <div class="chat-info">
+                <div class="chat-name">Chef Kristina <span class="tm">3h</span></div>
+                <div class="chat-prev">Menu update — peanut-free…</div>
+              </div>
+            </div>
+            <div class="chat-item">
+              <div class="chat-av" style="background:linear-gradient(135deg,var(--sky),#5a92b0)">PG</div>
+              <div class="chat-info">
+                <div class="chat-name">Parent Group · Sunshine <span class="tm">Yest.</span></div>
+                <div class="chat-prev">Heritage Day potluck ideas?</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="chat-panel">
+            <div class="chat-head">
+              <div class="chat-av" style="background:linear-gradient(135deg,var(--terracotta),var(--sunset))">JF</div>
+              <div>
+                <div style="font-size:13.5px;font-weight:700">Teacher Johanna Festus</div>
+                <div style="font-size:11.5px;color:var(--ok)">● Online · Sunshine Class</div>
+              </div>
+              <div style="margin-left:auto;display:flex;gap:8px"><div class="top-icon">📞</div><div class="top-icon">🎥</div></div>
+            </div>
+            <div class="chat-body">
+              <div class="msg">
+                <div class="bub">Good morning Mrs. Shikongo 🌞 Amara had such a beautiful moment in art today — she helped a new friend hold the paintbrush correctly.</div>
+                <div class="tm">14:42</div>
+              </div>
+              <div class="msg">
+                <div class="bub">📸 [Photo of Amara helping classmate]</div>
+                <div class="tm">14:42</div>
+              </div>
+              <div class="msg out">
+                <div class="bub">Oh thank you for sharing! She's been talking a lot about her new friend Tangi. Did they play together at break too?</div>
+                <div class="tm">14:55</div>
+              </div>
+              <div class="msg">
+                <div class="bub">Yes 🥰 They sat together for snack and shared apple slices. I think we have a beautiful friendship blooming.</div>
+                <div class="tm">14:57</div>
+              </div>
+              <div class="msg">
+                <div class="ai-tag">🪄 Akili translated to Oshiwambo</div>
+                <div class="bub">Eeno 🥰 Ova kala pamwe pokulya nokutopolelafana iimuna yapula. Ondi shi shiwa nawa kutya ohatu adha onkulahepo iiwa.</div>
+                <div class="tm">14:57</div>
+              </div>
+              <div class="msg out">
+                <div class="bub">That's wonderful. Could I bring extra apples Friday to share with Tangi?</div>
+                <div class="tm">15:01</div>
+              </div>
+            </div>
+            <div class="chat-input">
+              <div class="top-icon">📎</div>
+              <input placeholder="Type a message… (or hold mic to send voice note)">
+              <div class="top-icon">🎤</div>
+              <button>➤</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ CHECK-IN ============ -->
+      <section class="screen" id="checkin">
+        <div class="checkin-screen">
+          <div class="qr-display">
+            <div style="font-size:11px;letter-spacing:1.5px;opacity:0.7;margin-bottom:14px">🔒 SECURE PICKUP PASS</div>
+            <div class="qr-box"><div class="qr-pattern"></div></div>
+            <div style="font-size:13px;opacity:0.9">Show this to the gate</div>
+            <div style="font-size:22px;font-weight:700;margin-top:6px">Amara Shikongo</div>
+            <div style="font-size:12px;opacity:0.8;margin-top:4px">Pickup window: <b>16:00 – 18:00</b></div>
+            <div style="margin-top:18px;padding:10px 16px;background:rgba(255,255,255,0.1);border-radius:10px;font-size:11.5px">⏱️ Valid for 7 minutes · refreshes automatically</div>
+          </div>
+
+          <div>
+            <div class="card" style="margin-bottom:14px">
+              <div class="card-h"><div class="card-t">Authorized Pickup People</div><button style="background:var(--terracotta);color:#fff;border:none;padding:6px 12px;border-radius:8px;font-size:11.5px;cursor:pointer;font-weight:600">+ Add person</button></div>
+              <div class="recent-checkin">
+                <div class="chat-av" style="background:linear-gradient(135deg,var(--sage),#4a6c40)">MO</div>
+                <div>
+                  <div style="font-size:13px;font-weight:700">Mariam Shikongo</div>
+                  <div style="font-size:11.5px;color:var(--muted)">Mother · Primary</div>
+                </div>
+                <span class="pill ok" style="margin-left:auto">Verified</span>
+              </div>
+              <div class="recent-checkin">
+                <div class="chat-av" style="background:linear-gradient(135deg,var(--coral),var(--terracotta))">DS</div>
+                <div>
+                  <div style="font-size:13px;font-weight:700">David Shikongo</div>
+                  <div style="font-size:11.5px;color:var(--muted)">Father</div>
+                </div>
+                <span class="pill ok" style="margin-left:auto">Verified</span>
+              </div>
+              <div class="recent-checkin">
+                <div class="chat-av" style="background:linear-gradient(135deg,var(--sky),#5a92b0)">OM</div>
+                <div>
+                  <div style="font-size:13px;font-weight:700">Oma Helena</div>
+                  <div style="font-size:11.5px;color:var(--muted)">Grandmother · Tuesdays only</div>
+                </div>
+                <span class="pill ok" style="margin-left:auto">Verified</span>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-h"><div class="card-t">Recent Check-In Activity</div></div>
+              <div class="recent-checkin">
+                <div style="font-size:18px">✅</div>
+                <div>
+                  <div style="font-size:12.5px;font-weight:600">Dropped off by Mom</div>
+                  <div style="font-size:11px;color:var(--muted)">Today · Face-match confirmed</div>
+                </div>
+                <span class="checkin-time">08:14</span>
+              </div>
+              <div class="recent-checkin">
+                <div style="font-size:18px">🚪</div>
+                <div>
+                  <div style="font-size:12.5px;font-weight:600">Picked up by Dad</div>
+                  <div style="font-size:11px;color:var(--muted)">Yesterday · QR scan</div>
+                </div>
+                <span class="checkin-time">Yest. 17:22</span>
+              </div>
+              <div class="recent-checkin">
+                <div style="font-size:18px">✅</div>
+                <div>
+                  <div style="font-size:12.5px;font-weight:600">Dropped off by Mom</div>
+                  <div style="font-size:11px;color:var(--muted)">Yesterday</div>
+                </div>
+                <span class="checkin-time">Yest. 07:55</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ BILLING ============ -->
+      <section class="screen" id="billing">
+        <div class="grid g-3" style="margin-bottom:18px">
+          <div class="card stat">
+            <div class="lbl">Current Balance</div>
+            <div class="num">N$ 0.00</div>
+            <div class="sub" style="color:var(--ok)">✓ All paid up — thank you!</div>
+          </div>
+          <div class="card stat">
+            <div class="lbl">Next Invoice</div>
+            <div class="num">N$ 1,950</div>
+            <div class="sub">Due 28 Jun · Auto-pay on</div>
+          </div>
+          <div class="card stat">
+            <div class="lbl">Payment Method</div>
+            <div class="num" style="font-size:16px">FNB · ••8421</div>
+            <div class="sub">PayToday · EFT · Cash</div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:18px">
+          <div class="card-h">
+            <div class="card-t">Payment History</div>
+            <div style="display:flex;gap:6px">
+              <span class="pill">2026</span>
+              <span class="pill">📥 Download statements</span>
+            </div>
+          </div>
+          <div class="invoice-row h">
+            <div>Invoice</div>
+            <div>Amount</div>
+            <div>Due</div>
+            <div>Paid</div>
+            <div>Status</div>
+          </div>
+          <div class="invoice-row">
+            <div>June 2026 · School fees + meals</div>
+            <div>N$ 1,950</div>
+            <div>28 Jun</div>
+            <div>—</div>
+            <div><span class="invoice-status st-pending">Pending</span></div>
+          </div>
+          <div class="invoice-row">
+            <div>May 2026 · School fees + meals</div>
+            <div>N$ 1,950</div>
+            <div>28 May</div>
+            <div>27 May</div>
+            <div><span class="invoice-status st-paid">Paid</span></div>
+          </div>
+          <div class="invoice-row">
+            <div>Apr 2026 · School fees + Easter activities</div>
+            <div>N$ 2,100</div>
+            <div>28 Apr</div>
+            <div>24 Apr</div>
+            <div><span class="invoice-status st-paid">Paid</span></div>
+          </div>
+          <div class="invoice-row">
+            <div>Mar 2026 · School fees + meals</div>
+            <div>N$ 1,950</div>
+            <div>28 Mar</div>
+            <div>26 Mar</div>
+            <div><span class="invoice-status st-paid">Paid</span></div>
+          </div>
+        </div>
+
+        <div class="grid g-2">
+          <div class="card">
+            <div class="card-h"><div class="card-t">💳 Payment Options</div></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+              <div style="padding:14px;background:var(--cream);border-radius:10px;font-size:12.5px"><b>PayToday</b><div style="color:var(--muted);font-size:11px;margin-top:2px">Instant · 0% fees</div></div>
+              <div style="padding:14px;background:var(--cream);border-radius:10px;font-size:12.5px"><b>FNB eWallet</b><div style="color:var(--muted);font-size:11px;margin-top:2px">Mobile pay</div></div>
+              <div style="padding:14px;background:var(--cream);border-radius:10px;font-size:12.5px"><b>EFT</b><div style="color:var(--muted);font-size:11px;margin-top:2px">All Namibian banks</div></div>
+              <div style="padding:14px;background:var(--cream);border-radius:10px;font-size:12.5px"><b>Debit order</b><div style="color:var(--muted);font-size:11px;margin-top:2px">Set &amp; forget</div></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-h"><div class="card-t">🪄 Akili Fee Helper</div></div>
+            <div class="ai-insight" style="margin:0">
+              <div class="ai-bubble">💡</div>
+              <div>
+                <div class="ti">Save N$ 1,170 / year</div>
+                <div class="ms">Switching to our annual-prepayment plan unlocks a 5% loyalty discount. You'd save the equivalent of one month's after-care. Want to learn more?</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ HERITAGE CORNER ============ -->
+      <section class="screen" id="heritage">
+        <div class="card heritage-card" style="margin-bottom:18px">
+          <div style="position:relative;z-index:1">
+            <div style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;opacity:0.85;margin-bottom:6px">🌍 What makes us unique</div>
+            <h2 style="font-size:24px;font-weight:700">Namibia is woven into our curriculum</h2>
+            <p style="font-size:13.5px;line-height:1.6;margin-top:10px;opacity:0.92;max-width:640px">From Oshiwambo counting songs to Damara folktales, from Etosha wildlife to the colours of the Namib desert — our children learn the world by first knowing the soil under their feet.</p>
+            <div style="margin-top:14px">
+              <div style="font-size:11.5px;opacity:0.7;margin-bottom:6px">CHOOSE A LANGUAGE FOR AMARA'S TODAY VIEW</div>
+              <span class="lang-pill active">English</span>
+              <span class="lang-pill">Afrikaans</span>
+              <span class="lang-pill">Oshiwambo</span>
+              <span class="lang-pill">Otjiherero</span>
+              <span class="lang-pill">Damara/Nama</span>
+              <span class="lang-pill">RuKwangali</span>
+              <span class="lang-pill">Portuguese</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid g-3">
+          <div class="card">
+            <div style="font-size:32px">🎵</div>
+            <h4 style="margin-top:10px;font-size:14px">Song of the week</h4>
+            <p style="font-size:12.5px;color:var(--muted);margin-top:6px;line-height:1.5"><b style="color:var(--deep)">"Wami ka ondjila"</b> — a counting lullaby in Oshiwambo. Tap to hear Teacher Amanda sing it.</p>
+            <button style="margin-top:10px;background:var(--terracotta);color:#fff;border:none;padding:7px 12px;border-radius:8px;font-size:11.5px;cursor:pointer">▶ Play</button>
+          </div>
+          <div class="card">
+            <div style="font-size:32px">🍲</div>
+            <h4 style="margin-top:10px;font-size:14px">Taste of home</h4>
+            <p style="font-size:12.5px;color:var(--muted);margin-top:6px;line-height:1.5">This Friday: <b style="color:var(--deep)">Oshifima with spinach</b>. Chef Kristina sources from the Single Quarters market.</p>
+          </div>
+          <div class="card">
+            <div style="font-size:32px">📖</div>
+            <h4 style="margin-top:10px;font-size:14px">Story of the week</h4>
+            <p style="font-size:12.5px;color:var(--muted);margin-top:6px;line-height:1.5"><b style="color:var(--deep)">"How the Aardvark Got Its Long Nose"</b> — an original tale narrated in 3 languages.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ ADMIN DASHBOARD ============ -->
+      <section class="screen" id="admin">
+        <div class="hero" style="background:linear-gradient(135deg,var(--plum),var(--terracotta))">
+          <h1>Good morning, Director Assumpta 🌞</h1>
+          <p>Babies &amp; Todd's Academy is running smoothly. <b>82 of 82</b> learners enrolled, attendance is healthy, and Akili AI flagged 2 items for your attention today.</p>
+          <div class="hero-stats">
+            <div class="hero-stat"><div class="v">82</div><div class="l">Enrolled learners</div></div>
+            <div class="hero-stat"><div class="v">77</div><div class="l">Present today (94%)</div></div>
+            <div class="hero-stat"><div class="v">N$ 154,560</div><div class="l">June fee collection</div></div>
+            <div class="hero-stat"><div class="v">7 / 7</div><div class="l">Staff on duty</div></div>
+          </div>
+        </div>
+
+        <div class="grid g-4" style="margin-top:18px;margin-bottom:18px">
+          <div class="admin-stat">
+            <div class="as-h"><span style="font-size:11px;color:var(--muted);font-weight:600;letter-spacing:0.5px;text-transform:uppercase">Enrolment</span><div class="as-icon" style="background:rgba(194,85,45,0.12);color:var(--terracotta)">👶</div></div>
+            <div style="font-size:22px;font-weight:700">82 / 160</div>
+            <div style="font-size:11.5px;color:var(--muted);margin-top:4px">51% of post-expansion capacity</div>
+            <div class="bar" style="margin-top:8px"><div class="bar-fill" style="width:51%;background:var(--terracotta)"></div></div>
+          </div>
+          <div class="admin-stat">
+            <div class="as-h"><span style="font-size:11px;color:var(--muted);font-weight:600;letter-spacing:0.5px;text-transform:uppercase">Waitlist</span><div class="as-icon" style="background:rgba(232,163,61,0.15);color:#a06f1e">⏳</div></div>
+            <div style="font-size:22px;font-weight:700">23 families</div>
+            <div style="font-size:11.5px;color:var(--muted);margin-top:4px"><span class="up">↑ 6</span> in past 30 days</div>
+          </div>
+          <div class="admin-stat">
+            <div class="as-h"><span style="font-size:11px;color:var(--muted);font-weight:600;letter-spacing:0.5px;text-transform:uppercase">Monthly revenue</span><div class="as-icon" style="background:rgba(63,166,106,0.12);color:var(--ok)">💰</div></div>
+            <div style="font-size:22px;font-weight:700">N$ 154,560</div>
+            <div style="font-size:11.5px;color:var(--muted);margin-top:4px"><span class="up">↑ 7.8%</span> vs. May</div>
+          </div>
+          <div class="admin-stat">
+            <div class="as-h"><span style="font-size:11px;color:var(--muted);font-weight:600;letter-spacing:0.5px;text-transform:uppercase">Net cash flow</span><div class="as-icon" style="background:rgba(135,184,209,0.18);color:var(--sky)">📈</div></div>
+            <div style="font-size:22px;font-weight:700">N$ 88,060</div>
+            <div style="font-size:11.5px;color:var(--muted);margin-top:4px">On track vs. DBN projection</div>
+          </div>
+        </div>
+
+        <div class="grid g-2-1" style="margin-bottom:18px">
+          <div class="card">
+            <div class="card-h"><div class="card-t">Revenue vs. DBN Projection (36 months)</div><span class="pill">N$</span></div>
+            <svg class="chart-svg" viewBox="0 0 600 220" style="height:240px">
+              <defs>
+                <linearGradient id="rev" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#C2552D" stop-opacity="0.5"/><stop offset="100%" stop-color="#C2552D" stop-opacity="0"/></linearGradient>
+              </defs>
+              <!-- grid lines -->
+              <line x1="40" y1="40" x2="590" y2="40" stroke="#E8DDC8" stroke-dasharray="3 3"/>
+              <line x1="40" y1="90" x2="590" y2="90" stroke="#E8DDC8" stroke-dasharray="3 3"/>
+              <line x1="40" y1="140" x2="590" y2="140" stroke="#E8DDC8" stroke-dasharray="3 3"/>
+              <line x1="40" y1="190" x2="590" y2="190" stroke="#E8DDC8"/>
+              <text x="5" y="44" font-size="9" fill="#7A6C5D">300k</text>
+              <text x="5" y="94" font-size="9" fill="#7A6C5D">225k</text>
+              <text x="5" y="144" font-size="9" fill="#7A6C5D">150k</text>
+              <text x="5" y="194" font-size="9" fill="#7A6C5D">75k</text>
+              <!-- projection (dashed) -->
+              <polyline points="40,150 55,148 70,146 85,144 100,142 115,140 130,137 145,134 160,131 175,128 190,125 205,120 220,115 235,110 250,105 265,100 280,95 295,90 310,85 325,82 340,79 355,76 370,73 385,70 400,68 415,66 430,65 445,63 460,62 475,61 490,60 505,60 520,60 535,60 550,60 565,60 580,60" fill="none" stroke="#7A6C5D" stroke-width="1.5" stroke-dasharray="4 3"/>
+              <!-- actual -->
+              <path d="M40,150 L55,148 L70,145 L85,143 L100,140 L115,138 L130,135 L145,132 L160,128 L175,125 L190,122 L205,118 L220,113 L235,108 L240,107 L240,220 L40,220 Z" fill="url(#rev)"/>
+              <polyline points="40,150 55,148 70,145 85,143 100,140 115,138 130,135 145,132 160,128 175,125 190,122 205,118 220,113 235,108" fill="none" stroke="#C2552D" stroke-width="2.5"/>
+              <!-- "today" marker -->
+              <line x1="240" y1="35" x2="240" y2="195" stroke="#5B3A52" stroke-width="1" stroke-dasharray="2 2"/>
+              <text x="244" y="44" font-size="10" font-weight="700" fill="#5B3A52">Today</text>
+              <text x="40" y="215" font-size="9" fill="#7A6C5D">M1</text>
+              <text x="155" y="215" font-size="9" fill="#7A6C5D">M9</text>
+              <text x="270" y="215" font-size="9" fill="#7A6C5D">M18</text>
+              <text x="385" y="215" font-size="9" fill="#7A6C5D">M27</text>
+              <text x="565" y="215" font-size="9" fill="#7A6C5D">M36</text>
+            </svg>
+            <div style="display:flex;gap:18px;font-size:11.5px;color:var(--muted);margin-top:4px">
+              <span><span style="display:inline-block;width:12px;height:3px;background:var(--terracotta);vertical-align:middle"></span> Actual (M1–M14)</span>
+              <span><span style="display:inline-block;width:12px;height:1.5px;background:#7A6C5D;vertical-align:middle"></span> DBN projection (36mo)</span>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-h"><div class="card-t">🪄 Akili needs your attention</div></div>
+            <div class="alert-card alert-warn">
+              <div class="alert-icon" style="background:rgba(224,162,58,0.25);color:#a06f1e">⚠️</div>
+              <div>
+                <div style="font-size:12.5px;font-weight:700">2 fees overdue · 5+ days</div>
+                <div style="font-size:11.5px;color:var(--muted);margin-top:3px">Auto-reminder sent. Tap to follow up personally.</div>
+              </div>
+            </div>
+            <div class="alert-card alert-warn">
+              <div class="alert-icon" style="background:rgba(224,162,58,0.25);color:#a06f1e">📋</div>
+              <div>
+                <div style="font-size:12.5px;font-weight:700">3 first-aid certificates expire in 30 days</div>
+                <div style="font-size:11.5px;color:var(--muted);margin-top:3px">Johanna, Amanda, Beverly. Akili can book a renewal course.</div>
+              </div>
+            </div>
+            <div class="alert-card alert-ok">
+              <div class="alert-icon" style="background:rgba(63,166,106,0.18);color:var(--ok)">✓</div>
+              <div>
+                <div style="font-size:12.5px;font-weight:700">Property purchase milestone reached</div>
+                <div style="font-size:11.5px;color:var(--muted);margin-top:3px">DBN loan ready to draw — funder docs uploaded.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid g-2">
+          <div class="card">
+            <div class="card-h"><div class="card-t">Class Occupancy</div></div>
+            <table class="table">
+              <thead><tr><th>Class</th><th>Age</th><th>Teacher</th><th>Filled</th></tr></thead>
+              <tbody>
+                <tr><td><b>Sunbeam</b> 🐣</td><td>0–18m</td><td>Beverly</td><td>10 / 12</td></tr>
+                <tr><td><b>Sunshine</b> ☀️</td><td>18m–3y</td><td>Johanna</td><td>22 / 24</td></tr>
+                <tr><td><b>Rainbow</b> 🌈</td><td>3–4y</td><td>Amanda</td><td>20 / 22</td></tr>
+                <tr><td><b>Stars</b> ⭐</td><td>4–5y</td><td>Jolandi</td><td>18 / 22</td></tr>
+                <tr><td><b>Trailblazers</b> 🚀</td><td>5–6y</td><td>Nancy</td><td>12 / 18</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="card">
+            <div class="card-h"><div class="card-t">🪄 AI Insight of the Week</div><span class="pill ai">Akili</span></div>
+            <div class="ai-insight">
+              <div class="ai-bubble">📈</div>
+              <div>
+                <div class="ti">5+ year-old class is your growth lever</div>
+                <div class="ms">Trailblazers class has 6 open spots and your waitlist has 8 families with kids in that age range. Running a targeted "school readiness" open day this Saturday could fill it within 14 days and add <b>~N$ 9,900/month</b> in recurring revenue.</div>
+              </div>
+            </div>
+            <button style="margin-top:14px;background:linear-gradient(135deg,var(--terracotta),var(--sunset));color:#fff;border:none;padding:9px 14px;border-radius:8px;font-size:12.5px;font-weight:600;cursor:pointer">Generate open-day campaign →</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ ROSTER (ADMIN) ============ -->
+      <section class="screen" id="roster">
+        <div class="card">
+          <div class="card-h">
+            <div>
+              <div class="card-t">Learner Roster</div>
+              <div style="font-size:12px;color:var(--muted);margin-top:3px">82 learners · 5 classrooms · Smart filtering by Akili</div>
+            </div>
+            <div style="display:flex;gap:8px">
+              <button style="background:var(--cream);border:1px solid var(--line);padding:8px 14px;border-radius:8px;font-size:12.5px;cursor:pointer">📥 Export</button>
+              <button style="background:var(--terracotta);color:#fff;border:none;padding:8px 14px;border-radius:8px;font-size:12.5px;cursor:pointer;font-weight:600">+ Enrol learner</button>
+            </div>
+          </div>
+          <table class="table">
+            <thead><tr><th>Learner</th><th>Age</th><th>Class</th><th>Attendance (30d)</th><th>Fees</th><th>Akili flag</th></tr></thead>
+            <tbody>
+              <tr><td><b>Amara Shikongo</b></td><td>3y 4m</td><td>Sunshine</td><td>96%</td><td><span class="invoice-status st-paid">Paid</span></td><td>🌟 On track</td></tr>
+              <tr><td><b>Tangi Nangolo</b></td><td>3y 2m</td><td>Sunshine</td><td>98%</td><td><span class="invoice-status st-paid">Paid</span></td><td>🌟 On track</td></tr>
+              <tr><td><b>Sebastiao Da Costa</b></td><td>2y 9m</td><td>Sunshine</td><td>89%</td><td><span class="invoice-status st-pending">Pending</span></td><td>⚠️ Late drop-offs</td></tr>
+              <tr><td><b>Liyana Hamutenya</b></td><td>4y 1m</td><td>Rainbow</td><td>94%</td><td><span class="invoice-status st-paid">Paid</span></td><td>📈 Reading +20%</td></tr>
+              <tr><td><b>Junior Hailonga</b></td><td>5y 3m</td><td>Stars</td><td>97%</td><td><span class="invoice-status st-paid">Paid</span></td><td>🌟 On track</td></tr>
+              <tr><td><b>Pedro Cassinda</b></td><td>1y 6m</td><td>Sunbeam</td><td>92%</td><td><span class="invoice-status st-overdue">Overdue 8d</span></td><td>⚠️ Follow up</td></tr>
+              <tr><td><b>Naima Hangula</b></td><td>5y 11m</td><td>Trailblazers</td><td>99%</td><td><span class="invoice-status st-paid">Paid</span></td><td>🚀 Ready for Grade R</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ============ STAFF ============ -->
+      <section class="screen" id="staff">
+        <div class="grid g-4" style="margin-bottom:18px">
+          <div class="admin-stat">
+            <div class="lbl" style="font-size:11px;color:var(--muted);font-weight:600;letter-spacing:0.5px;text-transform:uppercase">Total staff</div>
+            <div style="font-size:22px;font-weight:700;margin-top:6px">7</div>
+            <div style="font-size:11.5px;color:var(--muted);margin-top:4px">Plus Director</div>
+          </div>
+          <div class="admin-stat">
+            <div class="lbl" style="font-size:11px;color:var(--muted);font-weight:600;letter-spacing:0.5px;text-transform:uppercase">Monthly payroll</div>
+            <div style="font-size:22px;font-weight:700;margin-top:6px">N$ 36,700</div>
+            <div style="font-size:11.5px;color:var(--muted);margin-top:4px">+N$ 12,000 Y2 plan</div>
+          </div>
+          <div class="admin-stat">
+            <div class="lbl" style="font-size:11px;color:var(--muted);font-weight:600;letter-spacing:0.5px;text-transform:uppercase">Staff:learner ratio</div>
+            <div style="font-size:22px;font-weight:700;margin-top:6px">1 : 11.7</div>
+            <div style="font-size:11.5px;color:var(--muted);margin-top:4px">Within ECD standard</div>
+          </div>
+          <div class="admin-stat">
+            <div class="lbl" style="font-size:11px;color:var(--muted);font-weight:600;letter-spacing:0.5px;text-transform:uppercase">Open positions</div>
+            <div style="font-size:22px;font-weight:700;margin-top:6px">2</div>
+            <div style="font-size:11.5px;color:var(--muted);margin-top:4px">Y1 expansion plan</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-h"><div class="card-t">Team</div></div>
+          <table class="table">
+            <thead><tr><th>Member</th><th>Role</th><th>Hours this week</th><th>Compliance</th><th>Sentiment</th></tr></thead>
+            <tbody>
+              <tr><td><b>Assumpta SM Gahutu</b></td><td>Founder &amp; Director</td><td>52h</td><td>✅ All</td><td>🌟 Excellent</td></tr>
+              <tr><td><b>Johanna Festus</b></td><td>Teacher &amp; Supervisor</td><td>45h</td><td>⚠️ First-aid renew in 22d</td><td>🌟 Excellent</td></tr>
+              <tr><td><b>Amanda Kazombaruru</b></td><td>Teacher</td><td>43h</td><td>⚠️ First-aid renew in 28d</td><td>😊 Good</td></tr>
+              <tr><td><b>Beverly Mbeere</b></td><td>Teacher</td><td>44h</td><td>⚠️ First-aid renew in 30d</td><td>🌟 Excellent</td></tr>
+              <tr><td><b>Jolandi Valerio</b></td><td>Teacher</td><td>42h</td><td>✅ All</td><td>😊 Good</td></tr>
+              <tr><td><b>Nancy Kazorondu</b></td><td>Teacher Assistant</td><td>40h</td><td>✅ All</td><td>🌟 Excellent</td></tr>
+              <tr><td><b>Kaherero Onesmus</b></td><td>Receptionist</td><td>40h</td><td>✅ All</td><td>😊 Good</td></tr>
+              <tr><td><b>Kristina Bompastoor</b></td><td>Chef &amp; General Assistant</td><td>42h</td><td>⚠️ Food handler cert in 60d</td><td>🌟 Excellent</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ============ AI SAFETY ============ -->
+      <section class="screen" id="safety">
+        <div class="card heritage-card" style="margin-bottom:18px;background:linear-gradient(135deg,#2B2118,#5B3A52)">
+          <div style="position:relative;z-index:1">
+            <div style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;opacity:0.85;margin-bottom:6px">🛡️ Akili Vision · LIVE</div>
+            <h2 style="font-size:22px;font-weight:700">All zones nominal · 4 cameras streaming</h2>
+            <p style="font-size:13px;line-height:1.6;margin-top:8px;opacity:0.9;max-width:580px">Privacy-preserving AI on-device. No footage leaves the academy. The system flags unusual events (a child wandering alone, an unknown adult at the gate, an unattended bag) and notifies staff in real time.</p>
+          </div>
+        </div>
+
+        <div class="grid g-4" style="margin-bottom:18px">
+          <div class="card stat" style="background:#fff">
+            <div class="lbl">Children in supervised view</div>
+            <div class="num" style="color:var(--ok)">77 / 77</div>
+            <div class="sub">✓ 100% accounted for</div>
+          </div>
+          <div class="card stat">
+            <div class="lbl">Gate access events today</div>
+            <div class="num">38</div>
+            <div class="sub">All verified · 0 anomalies</div>
+          </div>
+          <div class="card stat">
+            <div class="lbl">Fire/safety status</div>
+            <div class="num" style="color:var(--ok)">✓ OK</div>
+            <div class="sub">Last drill: 3 weeks ago</div>
+          </div>
+          <div class="card stat">
+            <div class="lbl">Allergy alerts</div>
+            <div class="num">2 active</div>
+            <div class="sub">Peanut · Dairy · Kitchen aware</div>
+          </div>
+        </div>
+
+        <div class="grid g-2">
+          <div class="card">
+            <div class="card-h"><div class="card-t">Today's Safety Log</div></div>
+            <div class="alert-card alert-ok">
+              <div class="alert-icon" style="background:rgba(63,166,106,0.18);color:var(--ok)">🚪</div>
+              <div><div style="font-size:12.5px;font-weight:700">Gate opened · Verified parent</div><div style="font-size:11px;color:var(--muted);margin-top:2px">15:22 · D. Shikongo · QR + face match</div></div>
+            </div>
+            <div class="alert-card alert-warn">
+              <div class="alert-icon" style="background:rgba(224,162,58,0.25);color:#a06f1e">👀</div>
+              <div><div style="font-size:12.5px;font-weight:700">Unattended child near garden gate</div><div style="font-size:11px;color:var(--muted);margin-top:2px">12:48 · Teacher Beverly notified · resolved in 22s</div></div>
+            </div>
+            <div class="alert-card alert-ok">
+              <div class="alert-icon" style="background:rgba(63,166,106,0.18);color:var(--ok)">🌡️</div>
+              <div><div style="font-size:12.5px;font-weight:700">All temperature checks passed</div><div style="font-size:11px;color:var(--muted);margin-top:2px">08:00–08:45 · 77 of 77 learners</div></div>
+            </div>
+            <div class="alert-card alert-ok">
+              <div class="alert-icon" style="background:rgba(63,166,106,0.18);color:var(--ok)">🧯</div>
+              <div><div style="font-size:12.5px;font-weight:700">Fire panel: Normal</div><div style="font-size:11px;color:var(--muted);margin-top:2px">Continuous monitoring</div></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-h"><div class="card-t">Camera Zones</div></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+              <div style="aspect-ratio:4/3;background:linear-gradient(135deg,#3a2535,#1d1218);border-radius:10px;display:flex;align-items:flex-end;padding:8px;color:#fff;font-size:11px;font-weight:600;position:relative"><span style="position:absolute;top:6px;left:8px;background:rgba(212,91,74,0.9);padding:2px 6px;border-radius:4px;font-size:9px">● LIVE</span>Entrance gate</div>
+              <div style="aspect-ratio:4/3;background:linear-gradient(135deg,#3a2535,#1d1218);border-radius:10px;display:flex;align-items:flex-end;padding:8px;color:#fff;font-size:11px;font-weight:600;position:relative"><span style="position:absolute;top:6px;left:8px;background:rgba(212,91,74,0.9);padding:2px 6px;border-radius:4px;font-size:9px">● LIVE</span>Sunshine class</div>
+              <div style="aspect-ratio:4/3;background:linear-gradient(135deg,#3a2535,#1d1218);border-radius:10px;display:flex;align-items:flex-end;padding:8px;color:#fff;font-size:11px;font-weight:600;position:relative"><span style="position:absolute;top:6px;left:8px;background:rgba(212,91,74,0.9);padding:2px 6px;border-radius:4px;font-size:9px">● LIVE</span>Outdoor playground</div>
+              <div style="aspect-ratio:4/3;background:linear-gradient(135deg,#3a2535,#1d1218);border-radius:10px;display:flex;align-items:flex-end;padding:8px;color:#fff;font-size:11px;font-weight:600;position:relative"><span style="position:absolute;top:6px;left:8px;background:rgba(212,91,74,0.9);padding:2px 6px;border-radius:4px;font-size:9px">● LIVE</span>Nap room</div>
+            </div>
+            <div style="font-size:11px;color:var(--muted);margin-top:10px;line-height:1.5">🔒 Faces are blurred in any feed shared outside the academy. Parents only see footage of their own child, with consent.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ FINANCE ============ -->
+      <section class="screen" id="finance">
+        <div class="grid g-4" style="margin-bottom:18px">
+          <div class="card stat">
+            <div class="lbl">June revenue</div>
+            <div class="num">N$ 154,560</div>
+            <div class="sub"><span class="up">↑ 7.8%</span> vs. May</div>
+          </div>
+          <div class="card stat">
+            <div class="lbl">Operating expenses</div>
+            <div class="num">N$ 66,500</div>
+            <div class="sub">Below budget</div>
+          </div>
+          <div class="card stat">
+            <div class="lbl">Net cash flow</div>
+            <div class="num" style="color:var(--ok)">N$ 88,060</div>
+            <div class="sub">Projected — actuals lock 30 Jun</div>
+          </div>
+          <div class="card stat">
+            <div class="lbl">DBN loan capacity</div>
+            <div class="num">14× cover</div>
+            <div class="sub">Healthy repayment ratio</div>
+          </div>
+        </div>
+
+        <div class="grid g-2">
+          <div class="card">
+            <div class="card-h"><div class="card-t">June Expense Breakdown</div></div>
+            <svg viewBox="0 0 220 220" style="width:200px;height:200px;display:block;margin:0 auto">
+              <circle cx="110" cy="110" r="80" fill="none" stroke="#F4E3C4" stroke-width="40"/>
+              <!-- salaries 55% -->
+              <circle cx="110" cy="110" r="80" fill="none" stroke="#C2552D" stroke-width="40" stroke-dasharray="276 502" transform="rotate(-90 110 110)"/>
+              <!-- rent 28% -->
+              <circle cx="110" cy="110" r="80" fill="none" stroke="#E8A33D" stroke-width="40" stroke-dasharray="140 502" stroke-dashoffset="-276" transform="rotate(-90 110 110)"/>
+              <!-- food 6% -->
+              <circle cx="110" cy="110" r="80" fill="none" stroke="#6B8E5A" stroke-width="40" stroke-dasharray="30 502" stroke-dashoffset="-416" transform="rotate(-90 110 110)"/>
+              <!-- utilities 8% -->
+              <circle cx="110" cy="110" r="80" fill="none" stroke="#87B8D1" stroke-width="40" stroke-dasharray="40 502" stroke-dashoffset="-446" transform="rotate(-90 110 110)"/>
+              <!-- other 3% -->
+              <circle cx="110" cy="110" r="80" fill="none" stroke="#5B3A52" stroke-width="40" stroke-dasharray="15 502" stroke-dashoffset="-486" transform="rotate(-90 110 110)"/>
+              <text x="110" y="105" text-anchor="middle" font-size="14" font-weight="700" fill="#2B2118">N$ 66,500</text>
+              <text x="110" y="122" text-anchor="middle" font-size="10" fill="#7A6C5D">total expense</text>
+            </svg>
+            <div style="margin-top:14px;font-size:12.5px">
+              <div style="display:flex;align-items:center;gap:8px;padding:4px 0"><span style="width:10px;height:10px;background:var(--terracotta);border-radius:2px"></span>Salaries — N$ 36,700 <span style="margin-left:auto;color:var(--muted)">55%</span></div>
+              <div style="display:flex;align-items:center;gap:8px;padding:4px 0"><span style="width:10px;height:10px;background:var(--sunset);border-radius:2px"></span>Rent — N$ 18,700 <span style="margin-left:auto;color:var(--muted)">28%</span></div>
+              <div style="display:flex;align-items:center;gap:8px;padding:4px 0"><span style="width:10px;height:10px;background:var(--sky);border-radius:2px"></span>Utilities — N$ 4,100 <span style="margin-left:auto;color:var(--muted)">8%</span></div>
+              <div style="display:flex;align-items:center;gap:8px;padding:4px 0"><span style="width:10px;height:10px;background:var(--sage);border-radius:2px"></span>Food &amp; supplies — N$ 4,000 <span style="margin-left:auto;color:var(--muted)">6%</span></div>
+              <div style="display:flex;align-items:center;gap:8px;padding:4px 0"><span style="width:10px;height:10px;background:var(--plum);border-radius:2px"></span>Other — N$ 3,000 <span style="margin-left:auto;color:var(--muted)">3%</span></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-h"><div class="card-t">DBN Loan Health</div><span class="pill ok">On track</span></div>
+            <div style="font-size:12.5px;line-height:1.7;color:var(--muted)">
+              <div><b style="color:var(--deep)">Loan amount:</b> N$ 2,500,000</div>
+              <div><b style="color:var(--deep)">Owner contribution:</b> N$ 1,800,000</div>
+              <div><b style="color:var(--deep)">Programme:</b> DBN For Her</div>
+              <div><b style="color:var(--deep)">Purpose:</b> Acquisition of permanent premises</div>
+            </div>
+            <div style="margin-top:14px">
+              <div class="ms-h"><span class="nm">Funding progress</span><span class="pct">Stage 3 / 6</span></div>
+              <div class="bar"><div class="bar-fill" style="width:50%;background:linear-gradient(90deg,var(--terracotta),var(--sunset))"></div></div>
+              <div style="font-size:11.5px;color:var(--muted);margin-top:6px">Next milestone: Property valuation due 12 July</div>
+            </div>
+            <div class="ai-insight" style="margin-top:14px">
+              <div class="ai-bubble">🪄</div>
+              <div>
+                <div class="ti">Akili tip</div>
+                <div class="ms">At current growth, you could repay 12 months early — saving ~N$ 180k in interest. I've drafted a scenario for your DBN advisor.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ COMPLIANCE ============ -->
+      <section class="screen" id="compliance">
+        <div class="card">
+          <div class="card-h"><div class="card-t">Compliance &amp; Licensing</div><span class="pill ok">Good standing</span></div>
+          <table class="table">
+            <thead><tr><th>Item</th><th>Issued by</th><th>Status</th><th>Expires</th><th>Action</th></tr></thead>
+            <tbody>
+              <tr><td>CC Registration · CC/2021/08489</td><td>BIPA Namibia</td><td><span class="invoice-status st-paid">Active</span></td><td>Annual renewal</td><td>Auto-tracked</td></tr>
+              <tr><td>Childcare Facility Permit</td><td>City of Windhoek</td><td><span class="invoice-status st-paid">Active</span></td><td>2027-03-15</td><td>—</td></tr>
+              <tr><td>Ministry of Education ECD Registration</td><td>MoEAC</td><td><span class="invoice-status st-paid">Active</span></td><td>2026-12-01</td><td>Renew in Q4</td></tr>
+              <tr><td>Health Certificate · Kitchen</td><td>City Health Dept.</td><td><span class="invoice-status st-paid">Active</span></td><td>2026-09-01</td><td>Renew in 2 mo</td></tr>
+              <tr><td>Fire Safety Compliance</td><td>NamFire Services</td><td><span class="invoice-status st-paid">Active</span></td><td>2026-11-12</td><td>—</td></tr>
+              <tr><td>POPIA/Data Protection · Akili</td><td>Internal</td><td><span class="invoice-status st-paid">Compliant</span></td><td>Reviewed quarterly</td><td>Q3 review</td></tr>
+              <tr><td>First-Aid Certs · 3 staff</td><td>Red Cross Namibia</td><td><span class="invoice-status st-pending">Expiring</span></td><td>Within 30 days</td><td>Book renewal</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script>
+  function show(id, el){
+    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+    if(el) el.classList.add('active');
+    const titles={
+      dashboard:['Parent · Dashboard','Good morning, Mrs. Shikongo 👋'],
+      profile:['Parent · My Child','Amara Shikongo · Today'],
+      curriculum:['Parent · Learning','Personalized Learning Path'],
+      photos:['Parent · Memories','Photos &amp; videos from today'],
+      messages:['Parent · Messages','Stay connected with the team'],
+      checkin:['Parent · Check-In','Secure pickup &amp; drop-off'],
+      billing:['Parent · Billing','Fees, payments &amp; statements'],
+      heritage:['Parent · Heritage Corner','Namibia in our classrooms'],
+      admin:['Admin · Director Dashboard','Good morning, Director Assumpta 🌞'],
+      roster:['Admin · Learners','Learner Roster'],
+      staff:['Admin · Team','Staff &amp; Payroll'],
+      safety:['Admin · Safety','AI-Powered Safety Monitor'],
+      finance:['Admin · Finance','Revenue, expenses &amp; DBN loan'],
+      compliance:['Admin · Compliance','Licensing &amp; documents']
+    };
+    const t=titles[id]||['',''];
+    document.getElementById('crumb').innerHTML=t[0];
+    document.getElementById('ttl').innerHTML=t[1];
+  }
+
+  function switchRole(role){
+    document.querySelectorAll('.role-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelector('[data-role="'+role+'"]').classList.add('active');
+    const isAdmin = role==='admin' || role==='teacher';
+    document.getElementById('nav-parent').style.display = isAdmin ? 'none' : 'block';
+    document.getElementById('nav-admin').style.display  = isAdmin ? 'block' : 'none';
+    if(isAdmin){
+      show('admin', document.querySelector('#nav-admin .nav-item'));
+    } else {
+      show('dashboard', document.querySelector('#nav-parent .nav-item'));
+    }
+  }
+
+  const tips=[
+    "Amara hit a new milestone today — she shared toys without prompting twice this morning. 🎉",
+    "Your June fee invoice (N$1,950) is auto-scheduled for 28 Jun. No action needed.",
+    "Tomorrow's lunch is peanut-free — Amara's allergy is logged with the kitchen.",
+    "Tip: Reading aloud for 10 minutes tonight will reinforce today's vocabulary leap.",
+    "🌍 Heritage Day RSVPs are open. 22 of 38 Sunshine families have replied."
+  ];
+  let tipIdx=0;
+  function rotateTip(){
+    tipIdx=(tipIdx+1)%tips.length;
+    document.getElementById('ai-tip').textContent=tips[tipIdx];
+  }
+  setInterval(rotateTip, 8000);
+</script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+{
+  "name": "babies-tods-academy",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev -w @babies-tods/web\" \"npm run dev -w @babies-tods/api\"",
+    "dev:web": "npm run dev -w @babies-tods/web",
+    "dev:api": "npm run dev -w @babies-tods/api",
+    "build": "npm run build -w @babies-tods/shared && npm run build -w @babies-tods/api && npm run build -w @babies-tods/web",
+    "build:web": "npm run build -w @babies-tods/web",
+    "build:api": "npm run build -w @babies-tods/api",
+    "lint": "npm run lint -w @babies-tods/web",
+    "prisma:generate": "npm run prisma:generate -w @babies-tods/api"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1",
+    "typescript": "^5.9.3"
+  },
+  "overrides": {
+    "multer": "^2.2.0",
+    "postcss": "^8.5.15"
+  }
+}

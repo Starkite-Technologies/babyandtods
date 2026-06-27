@@ -1,0 +1,191 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  role      String
+  parent    Parent?
+  staff     Staff?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Parent {
+  id        String    @id @default(cuid())
+  userId    String    @unique
+  phone     String
+  user      User      @relation(fields: [userId], references: [id])
+  children  Child[]
+  invoices  Invoice[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Staff {
+  id          String      @id @default(cuid())
+  userId      String      @unique
+  roleTitle   String
+  user        User        @relation(fields: [userId], references: [id])
+  classrooms  Classroom[]
+  reports     DailyReport[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+model Classroom {
+  id          String   @id @default(cuid())
+  name        String
+  ageGroup    String
+  leadStaffId String?
+  leadStaff   Staff?   @relation(fields: [leadStaffId], references: [id])
+  children    Child[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Child {
+  id                String             @id @default(cuid())
+  name              String
+  dateOfBirth       DateTime?
+  classroomId       String?
+  parentId          String?
+  classroom         Classroom?         @relation(fields: [classroomId], references: [id])
+  parent            Parent?            @relation(fields: [parentId], references: [id])
+  attendanceRecords Attendance[]
+  dailyReports      DailyReport[]
+  authorizedPickups AuthorizedPickup[]
+  healthRecords     HealthRecord[]
+  allergies         Allergy[]
+  incidents         Incident[]
+  mediaFiles        MediaFile[]
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+}
+
+model Attendance {
+  id           String   @id @default(cuid())
+  childId      String
+  date         DateTime
+  status       String
+  checkedInAt  DateTime?
+  checkedOutAt DateTime?
+  child        Child    @relation(fields: [childId], references: [id])
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model DailyReport {
+  id           String   @id @default(cuid())
+  childId      String
+  staffId      String?
+  date         DateTime
+  meals        String
+  nap          String
+  learningNote String
+  status       String
+  child        Child    @relation(fields: [childId], references: [id])
+  staff        Staff?   @relation(fields: [staffId], references: [id])
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  threadId  String
+  senderId  String
+  body      String
+  sentAt    DateTime @default(now())
+  createdAt DateTime @default(now())
+}
+
+model Invoice {
+  id        String    @id @default(cuid())
+  parentId  String
+  amount    Decimal
+  dueDate   DateTime
+  status    String
+  parent    Parent    @relation(fields: [parentId], references: [id])
+  payments  Payment[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Payment {
+  id        String   @id @default(cuid())
+  invoiceId String
+  amount    Decimal
+  paidAt    DateTime
+  method    String
+  invoice   Invoice  @relation(fields: [invoiceId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model AuthorizedPickup {
+  id           String   @id @default(cuid())
+  childId      String
+  name         String
+  relationship String
+  phone        String
+  child        Child    @relation(fields: [childId], references: [id])
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model HealthRecord {
+  id        String   @id @default(cuid())
+  childId   String
+  notes     String
+  child     Child    @relation(fields: [childId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Allergy {
+  id        String   @id @default(cuid())
+  childId   String
+  allergen  String
+  severity  String
+  notes     String?
+  child     Child    @relation(fields: [childId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Incident {
+  id        String   @id @default(cuid())
+  childId   String
+  date      DateTime
+  summary   String
+  severity  String
+  child     Child    @relation(fields: [childId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Announcement {
+  id        String   @id @default(cuid())
+  title     String
+  body      String
+  audience  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model MediaFile {
+  id        String   @id @default(cuid())
+  childId   String?
+  fileName  String
+  mimeType  String
+  url       String
+  child     Child?   @relation(fields: [childId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
