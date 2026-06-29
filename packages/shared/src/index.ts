@@ -1,4 +1,70 @@
-export type UserRole = "parent" | "teacher" | "admin";
+export type UserRole = "SUPER_ADMIN" | "ADMIN" | "TEACHER" | "FINANCE" | "PARENT" | "parent" | "teacher" | "admin";
+export type AccountStatus = "draft" | "invited" | "pending_verification" | "active" | "suspended" | "archived";
+export type InvitationStatus = "Draft" | "Invitation Sent" | "Accepted" | "Active";
+export type Permission =
+  | "Dashboard"
+  | "Learners"
+  | "Staff"
+  | "Finance"
+  | "Billing"
+  | "Attendance"
+  | "Daily Reports"
+  | "Messages"
+  | "Compliance"
+  | "Safety"
+  | "Users & Access";
+
+export interface UserAccount {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  role: UserRole;
+  status: AccountStatus;
+  lastLogin?: string;
+}
+
+export interface StaffUserAccount extends UserAccount {
+  role: "SUPER_ADMIN" | "ADMIN" | "TEACHER" | "FINANCE";
+  assignedClassroom?: string;
+  employmentStatus: "permanent" | "contract" | "probation" | "inactive";
+}
+
+export interface ParentUserAccount extends UserAccount {
+  role: "PARENT";
+  relationshipToChild: string;
+  linkedChild: string;
+  pickupPermission: boolean;
+  emergencyContactStatus: "complete" | "missing" | "needs_update";
+}
+
+export interface InvitationRecord {
+  id: string;
+  userName: string;
+  email: string;
+  role: UserRole;
+  sentDate?: string;
+  status: InvitationStatus;
+}
+
+export interface VerificationItem {
+  id: string;
+  accountType: "staff" | "parent";
+  name: string;
+  email: string;
+  role?: UserRole;
+  linkedChild?: string;
+  checks: Array<{ label: string; value: string; status: "ready" | "missing" | "review" }>;
+}
+
+export interface AuditLog {
+  id: string;
+  actor: string;
+  event: string;
+  target: string;
+  createdAt: string;
+  detail: string;
+}
 
 export type LearnerStatus = "checked-in" | "absent" | "picked-up";
 
@@ -42,6 +108,8 @@ export interface Classroom {
   name: string;
   ageGroup: string;
   leadStaffId?: string;
+  capacity?: number;
+  enrolled?: number;
 }
 
 export interface Attendance {
@@ -60,7 +128,9 @@ export interface DailyReport {
   meals: string;
   nap: string;
   learningNote: string;
-  status: "draft" | "ready" | "sent";
+  mood?: string;
+  activity?: string;
+  status: "draft" | "ready" | "approved" | "sent";
 }
 
 export interface Invoice {
@@ -87,6 +157,15 @@ export interface Message {
   sentAt: string;
 }
 
+export interface MessageThread {
+  id: string;
+  subject: string;
+  participants: string[];
+  preview: string;
+  lastMessageAt: string;
+  unread?: number;
+}
+
 export interface Incident {
   id: string;
   childId: string;
@@ -109,6 +188,14 @@ export interface AuthorizedPickup {
   name: string;
   relationship: string;
   phone: string;
+}
+
+export interface Announcement {
+  id: string;
+  title: string;
+  body: string;
+  audience: UserRole | "all";
+  date: string;
 }
 
 export interface DashboardStat {

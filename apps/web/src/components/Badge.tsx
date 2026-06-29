@@ -15,5 +15,5 @@ export function Badge({
   children: ReactNode;
   tone?: keyof typeof tones;
 }) {
-  return <span className={clsx("inline-flex rounded-full px-2.5 py-1 text-xs font-bold", tones[tone])}>{children}</span>;
+  return <span className={clsx("inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold capitalize", tones[tone])}>{children}</span>;
 }

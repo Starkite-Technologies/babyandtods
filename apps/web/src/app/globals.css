@@ -4,32 +4,162 @@
 
 :root {
   color-scheme: light;
-  background: #fbf6ec;
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-display: "Fraunces", "Inter", serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  /* Brand palette (mirrors tailwind brand.* for use in raw CSS) */
+  --pink: #F51B87;
+  --blue: #137AF0;
+  --green: #58C900;
+  --yellow: #FFD31A;
+  --orange: #FF8A00;
+  --purple: #7A2DD4;
+  --red: #F0262F;
+  --sky: #11A7E8;
 }
 
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 html {
   scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 body {
   margin: 0;
-  background: #fbf6ec;
-  color: #2b2118;
-  font-family:
-    Inter,
-    ui-sans-serif,
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    sans-serif;
+  background: #FFF9FE;
+  color: #101B3A;
+  font-family: var(--font-sans);
+  font-feature-settings: "cv11", "ss01", "ss03";
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
+a { color: inherit; text-decoration: none; }
+
+::selection { background: var(--pink); color: #fff; }
+
+nextjs-portal,
+[data-nextjs-toast],
+[data-nextjs-dev-tools-button],
+[data-next-badge-root] { display: none !important; }
+
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Playful dotted + rainbow wash background */
+.bg-grid {
+  background-image:
+    radial-gradient(circle at 1px 1px, rgba(19,122,240,0.16) 1px, transparent 0),
+    linear-gradient(135deg, rgba(245,27,135,0.12), transparent 30%, rgba(88,201,0,0.12) 60%, rgba(255,211,26,0.22));
+  background-size: 22px 22px;
 }
+.bg-grid-fade {
+  -webkit-mask-image: radial-gradient(ellipse 60% 60% at 50% 30%, black 40%, transparent 80%);
+          mask-image: radial-gradient(ellipse 60% 60% at 50% 30%, black 40%, transparent 80%);
+}
+
+.link-underline {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-size: 0 1px;
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  transition: background-size 200ms ease;
+}
+.link-underline:hover { background-size: 100% 1px; }
+
+.focus-ring:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+
+/* ============================================================== *
+ * Glass / neo-modern system — rainbow "Dare to Dream" edition
+ * ============================================================== */
+
+/* Animated rainbow aurora backdrop */
+.aurora {
+  position: fixed;
+  inset: -20%;
+  z-index: 0;
+  pointer-events: none;
+  filter: blur(64px) saturate(140%);
+  opacity: 0.85;
+}
+.aurora-blob { position: absolute; border-radius: 9999px; mix-blend-mode: multiply; opacity: 0.5; }
+.aurora-blob.b1 { width: 46vw; height: 46vw; left: -6vw; top: -8vw;  background: radial-gradient(circle at 30% 30%, var(--pink), transparent 70%);   animation: drift1 22s ease-in-out infinite; }
+.aurora-blob.b2 { width: 42vw; height: 42vw; right: -8vw; top: 2vw;  background: radial-gradient(circle at 60% 40%, var(--blue), transparent 70%);   animation: drift2 26s ease-in-out infinite; }
+.aurora-blob.b3 { width: 40vw; height: 40vw; left: 16vw; bottom: -16vw; background: radial-gradient(circle at 50% 50%, var(--green), transparent 70%); animation: drift3 30s ease-in-out infinite; }
+.aurora-blob.b4 { width: 34vw; height: 34vw; right: 8vw; bottom: -8vw; background: radial-gradient(circle at 50% 50%, var(--yellow), transparent 72%); animation: drift1 28s ease-in-out infinite reverse; }
+.aurora-blob.b5 { width: 30vw; height: 30vw; left: 40vw; top: -10vw; background: radial-gradient(circle at 50% 50%, var(--purple), transparent 72%); animation: drift2 34s ease-in-out infinite; }
+
+@keyframes drift1 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(4vw,5vw) scale(1.08); } }
+@keyframes drift2 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(-5vw,3vw) scale(1.12); } }
+@keyframes drift3 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(3vw,-4vw) scale(1.06); } }
+
+@media (prefers-reduced-motion: reduce) { .aurora-blob { animation: none !important; } }
+
+/* Frosted glass panels */
+.glass {
+  background: rgba(255,255,255,0.64);
+  backdrop-filter: blur(22px) saturate(150%);
+  -webkit-backdrop-filter: blur(22px) saturate(150%);
+  border: 1px solid rgba(255,255,255,0.55);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.65), 0 1px 2px rgba(16,27,58,0.04), 0 16px 40px rgba(19,122,240,0.12);
+}
+.glass-strong {
+  background: rgba(255,255,255,0.82);
+  backdrop-filter: blur(26px) saturate(160%);
+  -webkit-backdrop-filter: blur(26px) saturate(160%);
+  border: 1px solid rgba(255,255,255,0.65);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.7), 0 18px 50px rgba(19,122,240,0.14);
+}
+.glass-dark {
+  background: linear-gradient(160deg, rgba(28,30,62,0.94), rgba(16,17,33,0.92));
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  border: 1px solid rgba(255,255,255,0.10);
+  box-shadow: 0 20px 50px rgba(14,16,33,0.34);
+}
+
+/* Rainbow hairline on the top edge */
+.glass-accent-top { position: relative; }
+.glass-accent-top::before {
+  content: "";
+  position: absolute; left: 1.25rem; right: 1.25rem; top: 0; height: 3px;
+  background: linear-gradient(90deg, var(--pink), var(--orange), var(--yellow), var(--green), var(--blue), var(--purple));
+  border-radius: 3px;
+  opacity: 0.95;
+}
+
+/* Rainbow text + surfaces */
+.text-rainbow {
+  background: linear-gradient(90deg, var(--pink), var(--green), var(--blue), var(--purple));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.bg-rainbow { background: linear-gradient(90deg, var(--pink), var(--orange), var(--yellow), var(--green), var(--blue), var(--purple)); }
+.bg-brand-grad { background: linear-gradient(135deg, var(--pink), var(--orange) 42%, var(--green) 68%, var(--blue)); }
+
+/* Glow utilities */
+.glow-accent { box-shadow: 0 0 0 1px rgba(45,140,224,0.35), 0 8px 24px rgba(45,140,224,0.30); }
+.glow-pink   { box-shadow: 0 0 0 1px rgba(232,48,140,0.35), 0 8px 24px rgba(232,48,140,0.30); }
+.glow-sage   { box-shadow: 0 0 0 1px rgba(61,174,58,0.35), 0 8px 24px rgba(61,174,58,0.25); }
+
+/* Live pulse dot */
+.pulse-dot { position: relative; }
+.pulse-dot::after {
+  content: ""; position: absolute; inset: -4px; border-radius: 9999px;
+  background: currentColor; opacity: 0.35; animation: pulse-ring 1.8s ease-out infinite;
+}
+@keyframes pulse-ring { 0% { transform: scale(0.8); opacity: 0.5; } 100% { transform: scale(2.2); opacity: 0; } }
+
+/* Entrance + toast motion */
+@keyframes rise { 0% { opacity: 0; transform: translateY(10px); } 100% { opacity: 1; transform: translateY(0); } }
+.animate-rise { animation: rise 0.45s cubic-bezier(0.22,1,0.36,1) both; }
+@keyframes toast-in { 0% { opacity: 0; transform: translateY(-12px) scale(0.96); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+.animate-toast { animation: toast-in 0.35s cubic-bezier(0.22,1,0.36,1) both; }
+
+/* Shimmer for skeletons / processing states */
+.shimmer {
+  background: linear-gradient(100deg, rgba(255,255,255,0) 30%, rgba(255,255,255,0.7) 50%, rgba(255,255,255,0) 70%);
+  background-size: 200% 100%;
+  animation: shimmer 1.6s linear infinite;
+}
+@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }

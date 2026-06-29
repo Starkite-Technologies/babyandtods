@@ -1,5 +1,6 @@
-import { RouteDashboard } from "@/components/RouteDashboard";
+import { notFound } from "next/navigation";
 
-export default function Page() {
-  return <RouteDashboard path="/app/admin/compliance" />;
+// This page has been removed from the platform.
+export default function RemovedPage() {
+  notFound();
 }

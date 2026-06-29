@@ -3,19 +3,26 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String
-  role      String
-  parent    Parent?
-  staff     Staff?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id            String       @id @default(cuid())
+  email         String       @unique
+  name          String
+  role          String
+  passwordHash  String?
+  accountStatus String       @default("invited")
+  invitedAt     DateTime?
+  verifiedAt    DateTime?
+  suspendedAt   DateTime?
+  lastLoginAt   DateTime?
+  parent        Parent?
+  staff         Staff?
+  invitations   Invitation[]
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
 }
 
 model Parent {
@@ -30,14 +37,14 @@ model Parent {
 }
 
 model Staff {
-  id          String      @id @default(cuid())
-  userId      String      @unique
+  id          String        @id @default(cuid())
+  userId      String        @unique
   roleTitle   String
-  user        User        @relation(fields: [userId], references: [id])
+  user        User          @relation(fields: [userId], references: [id])
   classrooms  Classroom[]
   reports     DailyReport[]
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
 }
 
 model Classroom {
@@ -71,15 +78,15 @@ model Child {
 }
 
 model Attendance {
-  id           String   @id @default(cuid())
+  id           String    @id @default(cuid())
   childId      String
   date         DateTime
   status       String
   checkedInAt  DateTime?
   checkedOutAt DateTime?
-  child        Child    @relation(fields: [childId], references: [id])
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  child        Child     @relation(fields: [childId], references: [id])
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 }
 
 model DailyReport {
@@ -188,4 +195,28 @@ model MediaFile {
   child     Child?   @relation(fields: [childId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Invitation {
+  id        String    @id @default(cuid())
+  userId    String?
+  email     String
+  role      String
+  status    String    @default("draft")
+  token     String    @unique
+  sentAt    DateTime?
+  acceptedAt DateTime?
+  expiresAt DateTime
+  user      User?     @relation(fields: [userId], references: [id])
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  actor     String
+  event     String
+  target    String
+  detail    String
+  createdAt DateTime @default(now())
 }

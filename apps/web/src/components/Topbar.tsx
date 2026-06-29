@@ -1,11 +1,11 @@
-import { Bell, Search } from "lucide-react";
+import { Bell, CalendarDays, Search } from "lucide-react";
 
 export function Topbar({ crumb, title }: { crumb: string; title: string }) {
   return (
-    <header className="sticky top-0 z-20 flex items-center justify-between border-b border-line bg-white px-5 py-4 lg:px-7">
-      <div>
-        <p className="text-xs font-semibold text-muted">{crumb}</p>
-        <h1 className="text-lg font-bold text-deep">{title}</h1>
+    <header className="sticky top-0 z-20 flex items-center justify-between gap-4 border-b border-line bg-white/95 px-4 py-3 backdrop-blur sm:px-5 lg:px-7">
+      <div className="min-w-0">
+        <p className="truncate text-xs font-semibold text-muted">{crumb}</p>
+        <h1 className="truncate text-lg font-bold text-deep sm:text-xl">{title}</h1>
       </div>
       <div className="hidden items-center gap-3 md:flex">
         <label className="flex h-10 w-72 items-center gap-2 rounded-xl border border-line bg-cream px-3 text-muted">
@@ -22,6 +22,9 @@ export function Topbar({ crumb, title }: { crumb: string; title: string }) {
           </span>
           <span className="text-xs font-bold">Academy</span>
         </div>
+      </div>
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-cream text-terracotta md:hidden">
+        <CalendarDays className="h-4 w-4" />
       </div>
     </header>
   );

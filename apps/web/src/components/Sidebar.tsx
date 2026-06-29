@@ -2,9 +2,23 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Baby, BookOpen, CalendarCheck, Camera, CreditCard, Home, MessageCircle, ShieldCheck, Users, WalletCards, ClipboardList, UserRoundCog } from "lucide-react";
+import {
+  Baby,
+  BookOpen,
+  CalendarCheck,
+  Camera,
+  ClipboardList,
+  CreditCard,
+  Home,
+  MessageCircle,
+  ShieldCheck,
+  Sparkles,
+  UserRoundCog,
+  Users,
+  WalletCards
+} from "lucide-react";
 import { clsx } from "clsx";
-import { RoleSwitcher } from "./RoleSwitcher";
+import { Logo } from "@/components/Logo";
 
 const nav = {
   parent: [
@@ -43,27 +57,22 @@ export function Sidebar() {
   const role = activeRole(pathname);
 
   return (
-    <aside className="hidden w-64 shrink-0 border-r border-line bg-white p-4 lg:flex lg:flex-col">
-      <Link className="mb-7 flex items-center gap-3 rounded-xl px-2 py-1" href="/">
-        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-terracotta to-sunset text-lg font-black text-white shadow-soft">
-          B&amp;T
-        </div>
-        <div>
-          <p className="text-sm font-bold leading-tight">Babies &amp; Todd&apos;s</p>
-          <p className="text-[11px] font-bold uppercase tracking-wider text-muted">Academy</p>
-        </div>
-      </Link>
-      <RoleSwitcher />
-      <div className="mb-2 px-3 text-[10px] font-bold uppercase tracking-widest text-muted">{role} space</div>
-      <nav className="space-y-1">
+    <aside className="border-b border-line bg-white p-3 lg:sticky lg:top-0 lg:flex lg:h-screen lg:w-64 lg:shrink-0 lg:flex-col lg:border-b-0 lg:border-r lg:p-4">
+      <div className="mb-3 rounded-xl px-2 py-1 lg:mb-7">
+        <Logo />
+      </div>
+      <div className="mb-2 hidden px-3 text-[10px] font-bold uppercase tracking-widest text-muted lg:block">{role} space</div>
+      <nav className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 lg:mx-0 lg:block lg:space-y-1 lg:overflow-visible lg:px-0 lg:pb-0">
         {nav[role].map((item) => {
           const Icon = item.icon;
           const active = pathname === item.href;
           return (
             <Link
               className={clsx(
-                "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition",
-                active ? "bg-terracotta/10 text-terracotta" : "text-deep hover:bg-cream"
+                "flex shrink-0 items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-semibold transition lg:gap-3",
+                active
+                  ? "bg-gradient-to-r from-terracotta/10 to-sunset/10 text-terracotta shadow-sm"
+                  : "text-deep hover:bg-cream hover:text-terracotta"
               )}
               href={item.href}
               key={item.href}
@@ -74,8 +83,11 @@ export function Sidebar() {
           );
         })}
       </nav>
-      <div className="mt-auto rounded-2xl bg-gradient-to-br from-plum to-deep p-4 text-white">
-        <p className="text-xs font-bold uppercase tracking-wider text-white/70">Academy note</p>
+      <div className="mt-auto hidden rounded-2xl bg-gradient-to-br from-plum to-deep p-4 text-white lg:block">
+        <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-white/70">
+          <Sparkles className="h-3.5 w-3.5 text-sunset" />
+          Academy note
+        </p>
         <p className="mt-2 text-sm leading-6 text-white/90">Warm handovers, clear records, and calm operations in one shared space.</p>
       </div>
     </aside>

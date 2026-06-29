@@ -16,7 +16,7 @@ export function DashboardLayout({
       <Sidebar />
       <main className="min-w-0 flex-1">
         <Topbar crumb={crumb} title={title} />
-        <div className="p-5 lg:p-7">{children}</div>
+        <div className="mx-auto w-full max-w-[1500px] p-4 sm:p-5 lg:p-7">{children}</div>
       </main>
     </div>
   );

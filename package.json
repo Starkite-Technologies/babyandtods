@@ -14,7 +14,11 @@
     "build:web": "npm run build -w @babies-tods/web",
     "build:api": "npm run build -w @babies-tods/api",
     "lint": "npm run lint -w @babies-tods/web",
-    "prisma:generate": "npm run prisma:generate -w @babies-tods/api"
+    "prisma:generate": "npm run prisma:generate -w @babies-tods/api",
+    "db:generate": "npm run prisma:generate -w @babies-tods/api",
+    "db:migrate": "npm run prisma:migrate -w @babies-tods/api --",
+    "db:seed": "npm run prisma:seed -w @babies-tods/api",
+    "db:studio": "npm run prisma:studio -w @babies-tods/api"
   },
   "devDependencies": {
     "concurrently": "^9.2.1",

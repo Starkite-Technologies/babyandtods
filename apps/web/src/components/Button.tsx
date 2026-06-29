@@ -16,7 +16,7 @@ const variants = {
 
 export function Button({ href, children, variant = "primary", className, ...props }: ButtonProps) {
   const classes = clsx(
-    "inline-flex h-10 items-center justify-center gap-2 rounded-lg px-4 text-sm font-semibold transition",
+    "inline-flex h-10 items-center justify-center gap-2 rounded-lg px-4 text-sm font-semibold transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60",
     variants[variant],
     className
   );
