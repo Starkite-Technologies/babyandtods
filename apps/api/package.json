@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "npm run build && node dist/src/main.js",
+    "dev": "ts-node --project tsconfig.json src/main.ts",
+    "dev:watch": "nodemon --exec \"ts-node --project tsconfig.json\" src/main.ts --watch src --ext ts,json --quiet",
     "build": "tsc -p tsconfig.build.json",
     "start": "node dist/src/main.js",
     "prisma:generate": "prisma generate",
@@ -11,7 +12,6 @@
     "prisma:push": "prisma db push",
     "prisma:studio": "prisma studio",
     "seed": "tsx prisma/seed.ts",
-    "create-admin": "tsx prisma/create-admin.ts",
     "db:reset": "prisma db push --force-reset && tsx prisma/seed.ts"
   },
   "prisma": {
@@ -22,19 +22,23 @@
     "@nestjs/core": "^11.1.27",
     "@nestjs/platform-express": "^11.1.27",
     "@prisma/client": "^6.1.0",
-    "bcryptjs": "^2.4.3",
+    "bcryptjs": "^3.0.3",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.4",
+    "compression": "^1.7.5",
     "dotenv": "^16.6.1",
-    "jsonwebtoken": "^9.0.2",
+    "jsonwebtoken": "^9.0.3",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
-    "@types/jsonwebtoken": "^9.0.7",
+    "@types/compression": "^1.7.5",
+    "@types/jsonwebtoken": "^9.0.9",
     "@types/node": "^22.10.2",
+    "nodemon": "^3.1.10",
     "prisma": "^6.1.0",
+    "ts-node": "^10.9.2",
     "tsx": "^4.19.2",
     "typescript": "^5.9.3"
   }

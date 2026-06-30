@@ -19,12 +19,14 @@ import { MediaFilesModule } from "./media-files/media-files.module";
 import { PrismaModule } from "./prisma/prisma.module";
 import { AuthModule } from "./auth/auth.module";
 import { AdminAccessModule } from "./admin-access/admin-access.module";
+import { AdmissionsModule } from "./admissions/admissions.module";
 
 @Module({
   imports: [
     PrismaModule,
     AuthModule,
     AdminAccessModule,
+    AdmissionsModule,
     HealthModule,
     UsersModule,
     ChildrenModule,

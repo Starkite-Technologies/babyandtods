@@ -18,15 +18,15 @@ const base =
 
 const variants: Record<Variant, string> = {
   primary:
-    "bg-gradient-to-r from-brand-blue via-brand-pink to-brand-orange text-white shadow-soft hover:brightness-105",
+    "bg-ink text-white shadow-soft hover:bg-ink-700",
   secondary:
-    "border border-white/70 bg-white/70 text-ink shadow-soft backdrop-blur hover:border-brand-blue/40 hover:bg-white",
+    "border border-line bg-white text-ink shadow-soft hover:border-brand-blue/50 hover:bg-ink-50",
   ghost:
-    "text-ink hover:bg-white/60",
+    "text-ink hover:bg-ink-50",
   accent:
     "bg-brand-green text-white hover:bg-brand-green/90 shadow-soft",
   outline:
-    "border border-brand-blue/25 bg-white/35 text-ink backdrop-blur hover:bg-brand-blue hover:text-white"
+    "border border-brand-blue/45 bg-white text-ink hover:bg-brand-blue hover:text-white"
 };
 
 const sizes: Record<Size, string> = {

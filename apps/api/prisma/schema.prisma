@@ -220,3 +220,20 @@ model AuditLog {
   detail    String
   createdAt DateTime @default(now())
 }
+
+model AdmissionApplication {
+  id               String    @id @default(cuid())
+  parentName       String
+  parentEmail      String
+  parentPhone      String
+  childName        String
+  childDateOfBirth DateTime?
+  programme        String
+  preferredStart   DateTime?
+  notes            String?
+  status           String    @default("new")
+  adminNote        String?
+  convertedChildId String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+}

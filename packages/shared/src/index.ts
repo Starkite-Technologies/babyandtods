@@ -1,3 +1,5 @@
+// packages/shared/src/index.ts
+
 export type UserRole = "SUPER_ADMIN" | "ADMIN" | "TEACHER" | "FINANCE" | "PARENT" | "parent" | "teacher" | "admin";
 export type AccountStatus = "draft" | "invited" | "pending_verification" | "active" | "suspended" | "archived";
 export type InvitationStatus = "Draft" | "Invitation Sent" | "Accepted" | "Active";
@@ -149,23 +151,6 @@ export interface Payment {
   method: string;
 }
 
-export interface Message {
-  id: string;
-  threadId: string;
-  senderId: string;
-  body: string;
-  sentAt: string;
-}
-
-export interface MessageThread {
-  id: string;
-  subject: string;
-  participants: string[];
-  preview: string;
-  lastMessageAt: string;
-  unread?: number;
-}
-
 export interface Incident {
   id: string;
   childId: string;
@@ -211,4 +196,170 @@ export interface InvoiceSummary {
   amount: string;
   dueDate: string;
   status: "paid" | "pending" | "overdue";
+}
+
+// ── Teacher & Parent workspace types ────────────────────────────────────────
+
+export interface LearnerSummary {
+  id: string;
+  name: string;
+  dateOfBirth: string;
+  age: string;
+  classroomId: string;
+  classroomName: string;
+  parentName: string;
+  parentPhone: string;
+  emergencyContact: string;
+  emergencyPhone: string;
+  attendanceStatus: "present" | "absent" | "late" | "checked-out" | "not-recorded";
+  checkedInAt?: string;
+  hasAllergy: boolean;
+  allergyNote?: string;
+  hasMedicalNote: boolean;
+  pickupStatus: "on-premises" | "picked-up" | "not-arrived";
+}
+
+export interface AttendanceRecord {
+  id: string;
+  childId: string;
+  childName: string;
+  classroomName: string;
+  date: string;
+  status: "present" | "absent" | "late" | "checked-out";
+  checkedInAt?: string;
+  checkedOutAt?: string;
+  droppedOffBy?: string;
+  pickedUpBy?: string;
+  notes?: string;
+}
+
+export interface PickupPerson {
+  id: string;
+  childId: string;
+  childName: string;
+  name: string;
+  relationship: string;
+  phone: string;
+  idNumber?: string;
+  permissionStatus: "approved" | "pending" | "revoked";
+  emergencyOnly: boolean;
+  notes?: string;
+  lastPickup?: string;
+}
+
+export interface IncidentReport {
+  id: string;
+  childId: string;
+  childName: string;
+  classroomName: string;
+  date: string;
+  time: string;
+  incidentType: "injury" | "behavioral" | "medical" | "safety" | "other";
+  severity: "low" | "medium" | "high";
+  whatHappened: string;
+  actionTaken: string;
+  staffInvolved: string;
+  parentNotified: boolean;
+  parentNotifiedAt?: string;
+  followUpRequired: boolean;
+  status: "draft" | "submitted" | "reviewed" | "parent-notified" | "closed";
+  reportedBy: string;
+  notes?: string;
+}
+
+export interface HealthNote {
+  id: string;
+  childId: string;
+  childName: string;
+  classroomName: string;
+  type: "allergy" | "medical" | "medication" | "other";
+  description: string;
+  severity: "mild" | "moderate" | "severe" | "info";
+  instructions: string;
+  parentContact: string;
+  parentPhone: string;
+  lastUpdated: string;
+  activeAlert: boolean;
+}
+
+export interface ChatMessage {
+  id: string;
+  threadId: string;
+  senderName: string;
+  senderRole: "parent" | "teacher" | "admin";
+  body: string;
+  sentAt: string;
+}
+
+export interface MessageThread {
+  id: string;
+  subject: string;
+  participantName: string;
+  participantRole: "parent" | "teacher" | "admin";
+  linkedChildName?: string;
+  lastMessage: string;
+  lastMessageAt: string;
+  unreadCount: number;
+  messages: ChatMessage[];
+}
+
+export interface AnnouncementItem {
+  id: string;
+  title: string;
+  body: string;
+  audience: "all" | "parents" | "staff" | "teachers";
+  createdAt: string;
+  createdBy: string;
+  pinned: boolean;
+  status: "active" | "archived";
+}
+
+export interface InvoiceRecord {
+  id: string;
+  invoiceNumber: string;
+  childName: string;
+  description: string;
+  amount: number;
+  dueDate: string;
+  paidDate?: string;
+  status: "paid" | "pending" | "overdue";
+  paymentMethod?: string;
+}
+
+export interface DocumentRecord {
+  id: string;
+  name: string;
+  type: "enrollment" | "consent" | "medical" | "policy" | "statement" | "other";
+  dateUploaded: string;
+  status: "current" | "pending-signature" | "expired";
+  url?: string;
+}
+
+export interface TeacherDashboardStats {
+  classroomName: string;
+  ageGroup: string;
+  totalLearners: number;
+  presentToday: number;
+  absentToday: number;
+  lateToday: number;
+  pickedUpToday: number;
+  stillOnPremises: number;
+  pendingIncidents: number;
+  unreadMessages: number;
+  activeHealthAlerts: number;
+}
+
+export interface ParentDashboardStats {
+  childName: string;
+  childAge: string;
+  classroomName: string;
+  teacherName: string;
+  attendanceStatus: "present" | "absent" | "late" | "checked-out" | "not-recorded";
+  checkedInAt?: string;
+  checkedOutAt?: string;
+  currentBalance: number;
+  nextInvoiceAmount?: number;
+  nextInvoiceDue?: string;
+  unreadMessages: number;
+  pendingIncidents: number;
 }

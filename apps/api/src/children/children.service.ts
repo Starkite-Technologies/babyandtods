@@ -30,4 +30,22 @@ export class ChildrenService {
     if (!child) throw new NotFoundException("Child not found");
     return child;
   }
+
+  async delete(id: string) {
+    const child = await this.prisma.child.findUnique({ where: { id } });
+    if (!child) throw new NotFoundException("Child not found");
+
+    await this.prisma.$transaction(async (tx) => {
+      await tx.attendance.deleteMany({ where: { childId: id } });
+      await tx.dailyReport.deleteMany({ where: { childId: id } });
+      await tx.authorizedPickup.deleteMany({ where: { childId: id } });
+      await tx.healthRecord.deleteMany({ where: { childId: id } });
+      await tx.allergy.deleteMany({ where: { childId: id } });
+      await tx.incident.deleteMany({ where: { childId: id } });
+      await tx.mediaFile.deleteMany({ where: { childId: id } });
+      await tx.child.delete({ where: { id } });
+    });
+
+    return { ok: true };
+  }
 }

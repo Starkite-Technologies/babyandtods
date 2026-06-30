@@ -47,8 +47,8 @@ export function Header() {
       className={cn(
         "sticky top-0 z-40 transition-all duration-300",
         scrolled
-          ? "border-b border-white/60 bg-white/75 shadow-soft backdrop-blur-xl"
-          : "border-b border-transparent bg-white/25 backdrop-blur-sm"
+          ? "border-b border-line bg-white/95 shadow-soft backdrop-blur-xl"
+          : "border-b border-line bg-white/80 backdrop-blur-sm"
       )}
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 sm:px-6 lg:px-8">
@@ -63,7 +63,7 @@ export function Header() {
                 <Link
                   className={cn(
                     "inline-flex items-center gap-1 rounded-full px-3 py-2 text-sm font-medium transition",
-                    active ? "bg-white/70 text-brand-blue shadow-soft" : "text-ink-500 hover:bg-white/55 hover:text-brand-pink"
+                    active ? "bg-white text-brand-blue shadow-soft ring-1 ring-line" : "text-ink-600 hover:bg-ink-50 hover:text-brand-pink"
                   )}
                   href={item.href}
                 >
@@ -76,7 +76,7 @@ export function Header() {
                   <div className="glass-strong invisible absolute left-1/2 top-full z-10 mt-1 w-60 -translate-x-1/2 translate-y-1 rounded-2xl p-2 opacity-0 shadow-lift transition-all duration-200 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100">
                     {item.children.map((child) => (
                       <Link
-                        className="block rounded-lg px-3 py-2 text-sm text-ink-600 transition hover:bg-white/70 hover:text-brand-blue"
+                        className="block rounded-lg px-3 py-2 text-sm text-ink-600 transition hover:bg-ink-50 hover:text-brand-blue"
                         href={child.href}
                         key={child.href}
                       >
@@ -101,19 +101,19 @@ export function Header() {
           aria-label="Toggle menu"
           aria-expanded={open}
           onClick={() => setOpen((v) => !v)}
-          className="flex h-10 w-10 items-center justify-center rounded-full border border-white/70 bg-white/70 text-ink shadow-soft backdrop-blur lg:hidden"
+          className="flex h-10 w-10 items-center justify-center rounded-full border border-line bg-white text-ink shadow-soft backdrop-blur lg:hidden"
         >
           {open ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
         </button>
       </div>
       {open && (
         <div className="lg:hidden">
-          <div className="glass-strong border-t border-white/60 px-5 py-4">
+          <div className="glass-strong border-t border-line px-5 py-4">
             <ul className="space-y-1">
               {primary.map((item) => (
                 <li key={item.href}>
                   <Link
-                    className="block rounded-xl px-3 py-2.5 text-base font-medium text-ink hover:bg-white/70 hover:text-brand-blue"
+                    className="block rounded-xl px-3 py-2.5 text-base font-medium text-ink hover:bg-ink-50 hover:text-brand-blue"
                     href={item.href}
                   >
                     {item.label}
@@ -123,7 +123,7 @@ export function Header() {
                       {item.children.map((child) => (
                         <li key={child.href}>
                           <Link
-                            className="block rounded-lg px-3 py-2 text-sm text-ink-600 hover:bg-white/70 hover:text-brand-pink"
+                            className="block rounded-lg px-3 py-2 text-sm text-ink-600 hover:bg-ink-50 hover:text-brand-pink"
                             href={child.href}
                           >
                             {child.label}

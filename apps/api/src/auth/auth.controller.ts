@@ -9,7 +9,7 @@ export class AuthController {
 
   @Post("login")
   async login(@Body() dto: LoginDto) {
-    return this.authService.login(dto.email, dto.password);
+    return this.authService.login(dto.email, dto.password, dto.rememberMe);
   }
 
   @Post("accept-invitation")
@@ -21,7 +21,7 @@ export class AuthController {
   async me(@Headers("authorization") authHeader?: string) {
     const token = authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null;
     if (!token) throw new UnauthorizedException("No token provided");
-    const payload = this.authService.verifyToken(token);
+    const payload = await this.authService.verifyToken(token);
     if (!payload) throw new UnauthorizedException("Invalid or expired token");
     return payload;
   }

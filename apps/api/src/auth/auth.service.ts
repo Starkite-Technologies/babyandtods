@@ -18,7 +18,7 @@ export class AuthService {
     return process.env.JWT_SECRET ?? "dev-secret-change-in-production";
   }
 
-  async login(email: string, password: string) {
+  async login(email: string, password: string, rememberMe = false) {
     const user = await this.prisma.user.findUnique({ where: { email } });
 
     if (!user || !user.passwordHash) {
@@ -49,10 +49,13 @@ export class AuthService {
       role: user.role
     };
 
-    const token = jwt.sign(payload, this.jwtSecret, { expiresIn: "7d" });
+    const expiresIn = rememberMe ? "7d" : "8h";
+    const maxAge = rememberMe ? 60 * 60 * 24 * 7 : 60 * 60 * 8;
+    const token = jwt.sign(payload, this.jwtSecret, { expiresIn });
 
     return {
       token,
+      maxAge,
       user: { id: user.id, email: user.email, name: user.name, role: user.role }
     };
   }
@@ -101,12 +104,35 @@ export class AuthService {
       }
     });
 
-    return { ok: true, status: user.accountStatus };
+    const payload: JwtPayload = {
+      sub: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role
+    };
+    const authToken = jwt.sign(payload, this.jwtSecret, { expiresIn: "8h" });
+
+    return {
+      ok: true,
+      status: user.accountStatus,
+      token: authToken,
+      maxAge: 60 * 60 * 8,
+      user: { id: user.id, email: user.email, name: user.name, role: user.role }
+    };
   }
 
-  verifyToken(token: string): JwtPayload | null {
+  async verifyToken(token: string): Promise<JwtPayload | null> {
     try {
-      return jwt.verify(token, this.jwtSecret) as JwtPayload;
+      const payload = jwt.verify(token, this.jwtSecret) as JwtPayload;
+      const user = await this.prisma.user.findUnique({ where: { id: payload.sub } });
+      if (!user || user.email !== payload.email) return null;
+      if (user.accountStatus === "suspended" || user.accountStatus === "archived") return null;
+      return {
+        sub: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role
+      };
     } catch {
       return null;
     }

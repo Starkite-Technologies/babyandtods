@@ -19,7 +19,7 @@ async function api<T>(path: string, init?: RequestInit): Promise<T> {
 
 export type ApiUser = { id: string; name: string; email: string; role: string };
 
-export type ApiEmailStatus = { provider: string; configured: boolean; from: string; mode: "send" | "preview" };
+export type ApiEmailStatus = { provider: string; configured: boolean; from: string; mode: "send" | "unconfigured" };
 
 export type ApiAdminAccount = {
   id: string;
@@ -72,13 +72,60 @@ export type ApiVerificationItem = {
 
 export type ApiAdminAccessSummary = {
   email: ApiEmailStatus;
-  staffAccounts: ApiAdminStaffAccount[];
-  parentAccounts: ApiAdminParentAccount[];
+  counts: {
+    totalAccounts: number;
+    activeAccounts: number;
+    invitedAccounts: number;
+    verificationCount: number;
+    restrictedAccounts: number;
+  };
   invitations: ApiAdminInvitation[];
-  verificationQueue: ApiVerificationItem[];
   auditLogs: ApiAdminAuditLog[];
   classrooms: ApiClassroom[];
   children: ApiChild[];
+};
+
+export type ApiAccountDirectoryItem = {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  kind: "staff" | "parent" | "user";
+  phone: string;
+  status: string;
+  lastLogin?: string | null;
+  invitedAt?: string | null;
+  verifiedAt?: string | null;
+  primaryLink: string;
+  secondary: string;
+};
+
+export type ApiAccountDirectory = {
+  page: number;
+  take: number;
+  total: number;
+  totalPages: number;
+  items: ApiAccountDirectoryItem[];
+};
+
+export type ApiAdminUserProfile = {
+  id: string;
+  name: string;
+  email: string;
+  protected?: boolean;
+  onboardingLocked?: boolean;
+  role: string;
+  status: string;
+  kind: "staff" | "parent" | "user";
+  lastLogin?: string | null;
+  invitedAt?: string | null;
+  verifiedAt?: string | null;
+  suspendedAt?: string | null;
+  createdAt: string;
+  staff: null | { id: string; roleTitle: string; classrooms: ApiClassroom[]; reports: ApiDailyReport[] };
+  parent: null | { id: string; phone: string; children: ApiChild[]; invoices: ApiInvoice[] };
+  invitations: ApiAdminInvitation[];
+  auditLogs: ApiAdminAuditLog[];
 };
 
 export type ApiClassroom = {
@@ -148,6 +195,15 @@ export type ApiIncident = {
   child?: ApiChild;
 };
 
+export type ApiHealthRecord = {
+  id: string;
+  childId: string;
+  notes: string;
+  createdAt: string;
+  updatedAt: string;
+  child?: ApiChild;
+};
+
 export type ApiAuthorizedPickup = {
   id: string;
   childId: string;
@@ -173,6 +229,23 @@ export type ApiPayment = {
   paidAt: string;
   method: string;
   invoice?: ApiInvoice;
+};
+
+export type ApiAdmissionApplication = {
+  id: string;
+  parentName: string;
+  parentEmail: string;
+  parentPhone: string;
+  childName: string;
+  childDateOfBirth?: string | null;
+  programme: string;
+  preferredStart?: string | null;
+  notes?: string | null;
+  status: "new" | "reviewing" | "tour-booked" | "waitlisted" | "approved" | "rejected" | "enrolled";
+  adminNote?: string | null;
+  convertedChildId?: string | null;
+  createdAt: string;
+  updatedAt: string;
 };
 
 export type ApiStaff = {
@@ -202,6 +275,8 @@ export const apiClient = {
       authorizedPickups: ApiAuthorizedPickup[];
       allergies: ApiAllergy[];
       incidents: ApiIncident[];
+      healthRecords: ApiHealthRecord[];
+      mediaFiles: Array<{ id: string; childId?: string | null; fileName: string; mimeType: string; url: string; createdAt: string }>;
     }>(`/children/${id}`)
   },
   parents: {
@@ -241,6 +316,9 @@ export const apiClient = {
   incidents: {
     list: () => api<ApiIncident[]>("/incidents")
   },
+  healthRecords: {
+    list: () => api<ApiHealthRecord[]>("/health-records")
+  },
   authorizedPickups: {
     forChild: (id: string) => api<ApiAuthorizedPickup[]>(`/authorized-pickups?childId=${id}`)
   },
@@ -248,8 +326,22 @@ export const apiClient = {
     list: () => api<ApiMessage[]>("/messages"),
     thread: (id: string) => api<ApiMessage[]>(`/messages/${id}`)
   },
+  admissions: {
+    list: (status?: string) => api<ApiAdmissionApplication[]>(`/admissions${status ? `?status=${status}` : ""}`)
+  },
   adminAccess: {
-    summary: () => api<ApiAdminAccessSummary>("/admin-access")
+    summary: () => api<ApiAdminAccessSummary>("/admin-access"),
+    accounts: (params?: { type?: string; status?: string; search?: string; page?: number; take?: number }) => {
+      const query = new URLSearchParams();
+      if (params?.type) query.set("type", params.type);
+      if (params?.status) query.set("status", params.status);
+      if (params?.search) query.set("search", params.search);
+      if (params?.page) query.set("page", String(params.page));
+      if (params?.take) query.set("take", String(params.take));
+      const suffix = query.toString() ? `?${query.toString()}` : "";
+      return api<ApiAccountDirectory>(`/admin-access/accounts${suffix}`);
+    },
+    profile: (id: string) => api<ApiAdminUserProfile>(`/admin-access/users/${id}`)
   }
 };
 

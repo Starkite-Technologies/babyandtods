@@ -120,7 +120,7 @@ Future authentication should follow an invite-based flow: admin creates account,
 
 ### Invitation email setup
 
-The admin Users & Access page sends invitations through the API email service. In development, missing credentials place invitations in preview mode so the admin workflow still works without sending real email.
+The admin Users & Access page sends invitations through the API email service. Email credentials are required before invitation emails can be sent.
 
 To send real invitations, configure `apps/api/.env`:
 
@@ -131,7 +131,7 @@ RESEND_API_KEY="your-resend-api-key"
 WEB_ORIGIN="http://localhost:3010"
 ```
 
-The flow is: admin creates staff or parent account, the API creates the user record, an invitation token is generated, email is sent or previewed, and the account appears in the verification queue until admin approval.
+The flow is: admin creates staff or parent account, the API creates the user record, an invitation token is generated, email is sent, and the account appears in the verification queue until admin approval.
 
 ## Deferred
 

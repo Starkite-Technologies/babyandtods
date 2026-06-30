@@ -2,10 +2,12 @@ import "dotenv/config";
 import "reflect-metadata";
 import { NestFactory } from "@nestjs/core";
 import { ValidationPipe } from "@nestjs/common";
+import compression from "compression";
 import { AppModule } from "./app.module";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { cors: false });
+  app.use(compression());
   app.enableCors({
     origin: process.env.WEB_ORIGIN?.split(",") ?? [
       "http://localhost:3000",

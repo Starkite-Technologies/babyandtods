@@ -35,7 +35,7 @@ function Chip({ active, onClick, children }: { active: boolean; onClick: () => v
     <button
       onClick={onClick}
       className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${
-        active ? "bg-ink text-paper" : "bg-white/60 text-ink-600 ring-1 ring-inset ring-white/60 hover:bg-white"
+        active ? "bg-ink text-paper" : "bg-white text-ink-600 ring-1 ring-inset ring-line hover:bg-ink-50"
       }`}
     >
       {children}
@@ -88,7 +88,7 @@ export function ReportComposer({ children }: { children: Child[] }) {
   return (
     <div className="grid gap-6 lg:grid-cols-[1fr_1.1fr]">
       {/* Builder */}
-      <div className="glass rounded-2xl p-5 sm:p-6">
+      <div className="rounded-2xl border border-line bg-white p-5 shadow-soft sm:p-6">
         <div className="space-y-1.5">
           <label className="text-xs font-semibold uppercase tracking-wider text-muted">Learner</label>
           <select
@@ -98,7 +98,7 @@ export function ReportComposer({ children }: { children: Child[] }) {
               setDraft("");
               setSent(false);
             }}
-            className="h-11 w-full rounded-xl border border-white/60 bg-white/60 px-3 text-sm text-ink backdrop-blur focus:border-accent focus:outline-none"
+            className="h-11 w-full rounded-xl border border-line bg-white px-3 text-sm text-ink focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/10"
           >
             {children.map((c) => (
               <option key={c.id} value={c.id}>
@@ -157,12 +157,12 @@ export function ReportComposer({ children }: { children: Child[] }) {
         </button>
       </div>
 
-      {/* Preview */}
-      <div className="glass-strong glass-accent-top flex flex-col rounded-2xl p-5 sm:p-6">
+      {/* Draft */}
+      <div className="glass-accent-top flex flex-col rounded-2xl border border-line bg-white p-5 shadow-soft sm:p-6">
         <div className="mb-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Sparkles className="h-4 w-4 text-accent" />
-            <h3 className="text-sm font-semibold text-ink">AI draft preview</h3>
+            <h3 className="text-sm font-semibold text-ink">AI draft</h3>
           </div>
           {child && <span className="text-xs text-muted">for {child.name}</span>}
         </div>
@@ -179,7 +179,7 @@ export function ReportComposer({ children }: { children: Child[] }) {
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             rows={9}
-            className="flex-1 resize-none rounded-xl border border-white/60 bg-white/50 p-4 text-sm leading-relaxed text-ink outline-none focus:border-accent"
+            className="flex-1 resize-none rounded-xl border border-line bg-white p-4 text-sm leading-relaxed text-ink outline-none focus:border-accent focus:ring-2 focus:ring-accent/10"
           />
         ) : (
           <div className="flex flex-1 flex-col items-center justify-center py-10 text-center">

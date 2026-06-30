@@ -154,7 +154,7 @@ export default function HomePage() {
                 <div className="absolute -right-16 -top-16 h-40 w-40 animate-soft-spin rounded-full border-[22px] border-sunset/25" aria-hidden />
                 <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-coral/20 blur-2xl" aria-hidden />
                 <Image
-                  src="/images/academy-hero-cutout.png?v=2"
+                  src="/images/academy-hero-cutout.png"
                   alt="Babies and Todd's Academy children illustration"
                   width={1378}
                   height={784}
@@ -280,7 +280,7 @@ export default function HomePage() {
               </div>
               <div className="mt-8 flex flex-wrap gap-3">
                 <Button href="/app/parent/dashboard" variant="accent">
-                  Preview parent app <ArrowRight className="h-4 w-4" />
+                  Open parent portal <ArrowRight className="h-4 w-4" />
                 </Button>
                 <Button href="/login" variant="outline" className="!border-paper/20 !text-paper hover:!bg-paper hover:!text-ink">
                   Sign in
@@ -294,16 +294,16 @@ export default function HomePage() {
                     <span className="h-2.5 w-2.5 rounded-full bg-paper/20" />
                     <span className="h-2.5 w-2.5 rounded-full bg-paper/20" />
                     <span className="h-2.5 w-2.5 rounded-full bg-paper/20" />
-                    <span className="ml-3 font-mono text-[10px] text-paper/40">parent · today · 14:05</span>
+                    <span className="ml-3 font-mono text-[10px] text-paper/40">parent portal</span>
                   </div>
                   <div className="space-y-3 p-4">
-                    <MockRow label="Arrived" value="08:12" tone="ok" />
-                    <MockRow label="Breakfast" value="Oats + fruit" />
-                    <MockRow label="Story circle" value="3 new cards" tone="accent" />
-                    <MockRow label="Outdoor movement" value="40m" />
-                    <MockRow label="Lunch" value="Allergy ✓" tone="ok" />
-                    <MockRow label="Nap" value="1h 10m" />
-                    <MockRow label="Mood" value="Curious" tone="accent" />
+                    <PortalFeatureRow label="Secure check-in" value="Live" tone="ok" />
+                    <PortalFeatureRow label="Daily reports" value="Teacher approved" />
+                    <PortalFeatureRow label="Parent messages" value="Two-way" tone="accent" />
+                    <PortalFeatureRow label="Payment portal" value="Online" />
+                    <PortalFeatureRow label="Pickup pass" value="Verified" tone="ok" />
+                    <PortalFeatureRow label="Learning journey" value="Private" />
+                    <PortalFeatureRow label="Notifications" value="Instant" tone="accent" />
                     <div className="!mt-4 rounded-xl border border-paper/10 bg-paper/[0.04] p-3">
                       <p className="font-mono text-[10px] uppercase tracking-wider text-paper/40">Teacher note</p>
                       <p className="mt-1 text-sm text-paper">
@@ -393,7 +393,7 @@ export default function HomePage() {
   );
 }
 
-function MockRow({
+function PortalFeatureRow({
   label,
   value,
   tone = "default"

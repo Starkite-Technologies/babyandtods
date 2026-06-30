@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable } from "@nestjs/common";
 
 type EmailInput = {
   to: string;
@@ -10,7 +10,7 @@ type EmailInput = {
 @Injectable()
 export class EmailService {
   getStatus() {
-    const provider = process.env.EMAIL_PROVIDER ?? "preview";
+    const provider = process.env.EMAIL_PROVIDER ?? "resend";
     const from = process.env.EMAIL_FROM ?? "";
     const resendReady = provider === "resend" && Boolean(process.env.RESEND_API_KEY && from);
 
@@ -18,7 +18,7 @@ export class EmailService {
       provider,
       configured: resendReady,
       from: from || "not configured",
-      mode: resendReady ? "send" : "preview"
+      mode: resendReady ? "send" : "unconfigured"
     };
   }
 
@@ -54,11 +54,6 @@ export class EmailService {
       return { ok: true, mode: "send", provider: "resend", data };
     }
 
-    return {
-      ok: true,
-      mode: "preview",
-      provider: status.provider,
-      preview: input
-    };
+    throw new BadRequestException("Invitation email is not configured. Configure EMAIL_PROVIDER, EMAIL_FROM, and RESEND_API_KEY.");
   }
 }

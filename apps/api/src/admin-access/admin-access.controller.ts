@@ -1,6 +1,5 @@
-import { Body, Controller, Get, Param, Patch, Post } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from "@nestjs/common";
 import { AdminAccessService } from "./admin-access.service";
-import { CreateParentAccountDto } from "./dto/create-parent-account.dto";
 import { CreateStaffAccountDto } from "./dto/create-staff-account.dto";
 import { SendInvitationDto } from "./dto/send-invitation.dto";
 
@@ -13,14 +12,31 @@ export class AdminAccessController {
     return this.service.summary();
   }
 
+  @Get("accounts")
+  accounts(
+    @Query("type") type?: string,
+    @Query("status") status?: string,
+    @Query("search") search?: string,
+    @Query("page") page?: string,
+    @Query("take") take?: string
+  ) {
+    return this.service.listAccounts({
+      type,
+      status,
+      search,
+      page: page ? Number(page) : undefined,
+      take: take ? Number(take) : undefined
+    });
+  }
+
+  @Get("users/:id")
+  profile(@Param("id") id: string) {
+    return this.service.getUserProfile(id);
+  }
+
   @Post("staff")
   createStaff(@Body() body: CreateStaffAccountDto) {
     return this.service.createStaffAccount(body);
-  }
-
-  @Post("parents")
-  createParent(@Body() body: CreateParentAccountDto) {
-    return this.service.createParentAccount(body);
   }
 
   @Post("invitations/send")
@@ -41,5 +57,15 @@ export class AdminAccessController {
   @Patch("users/:id/restore")
   restore(@Param("id") id: string) {
     return this.service.restoreUser(id);
+  }
+
+  @Delete("users/:id/onboarding")
+  cancelOnboarding(@Param("id") id: string) {
+    return this.service.cancelParentOnboarding(id);
+  }
+
+  @Delete("users/:id")
+  delete(@Param("id") id: string) {
+    return this.service.deleteUser(id);
   }
 }

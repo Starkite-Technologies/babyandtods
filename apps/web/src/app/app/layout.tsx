@@ -1,14 +1,13 @@
 import type { Metadata } from "next";
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { getCurrentUser } from "@/lib/auth";
 
 export const metadata: Metadata = { title: "Platform" };
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("auth");
+  const user = await getCurrentUser();
 
-  if (!token?.value) {
+  if (!user) {
     redirect("/login");
   }
 
