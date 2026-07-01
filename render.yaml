@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: babies-tods-api
+    runtime: node
+    plan: free
+    rootDir: apps/api
+    buildCommand: cd ../.. && npm install && cd apps/api && npx prisma generate && npm run build
+    startCommand: npm run start
+    envVars:
+      # Fill these in via the Render dashboard when you apply this blueprint —
+      # they're intentionally left out of the file (sync: false) so no secret
+      # ever gets committed to the repo.
+      - key: DATABASE_URL
+        sync: false
+      - key: WEB_ORIGIN
+        sync: false
+      - key: EMAIL_PROVIDER
+        value: resend
+      - key: EMAIL_FROM
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      # Render generates a random secure value for this one automatically —
+      # no need to invent or type anything.
+      - key: JWT_SECRET
+        generateValue: true
