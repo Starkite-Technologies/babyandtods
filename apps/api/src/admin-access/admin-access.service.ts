@@ -85,10 +85,6 @@ export class AdminAccessService {
           staff: { include: { classrooms: true } },
           parent: { include: { children: true } }
         },
-        // Load the staff/parent relations via a single SQL join instead of
-        // one extra round trip per relation — see children.service.ts for
-        // the full explanation.
-        relationLoadStrategy: "join",
         orderBy: { name: "asc" },
         skip,
         take
@@ -111,8 +107,7 @@ export class AdminAccessService {
         staff: { include: { classrooms: true, reports: { orderBy: { date: "desc" }, take: 5 } } },
         parent: { include: { children: { include: { classroom: true } }, invoices: { include: { payments: true }, orderBy: { dueDate: "desc" }, take: 6 } } },
         invitations: { orderBy: { createdAt: "desc" }, take: 8 }
-      },
-      relationLoadStrategy: "join"
+      }
     });
 
     if (!user) throw new NotFoundException("User not found");
