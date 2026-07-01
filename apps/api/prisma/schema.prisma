@@ -56,6 +56,8 @@ model Classroom {
   children    Child[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  @@index([leadStaffId])
 }
 
 model Child {
@@ -75,6 +77,9 @@ model Child {
   mediaFiles        MediaFile[]
   createdAt         DateTime           @default(now())
   updatedAt         DateTime           @updatedAt
+
+  @@index([classroomId])
+  @@index([parentId])
 }
 
 model Attendance {
@@ -87,6 +92,8 @@ model Attendance {
   child        Child     @relation(fields: [childId], references: [id])
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
+
+  @@index([childId])
 }
 
 model DailyReport {
@@ -102,6 +109,9 @@ model DailyReport {
   staff        Staff?   @relation(fields: [staffId], references: [id])
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+
+  @@index([childId])
+  @@index([staffId])
 }
 
 model Message {
@@ -111,6 +121,8 @@ model Message {
   body      String
   sentAt    DateTime @default(now())
   createdAt DateTime @default(now())
+
+  @@index([threadId])
 }
 
 model Invoice {
@@ -123,6 +135,8 @@ model Invoice {
   payments  Payment[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
+
+  @@index([parentId])
 }
 
 model Payment {
@@ -133,6 +147,8 @@ model Payment {
   method    String
   invoice   Invoice  @relation(fields: [invoiceId], references: [id])
   createdAt DateTime @default(now())
+
+  @@index([invoiceId])
 }
 
 model AuthorizedPickup {
@@ -144,6 +160,8 @@ model AuthorizedPickup {
   child        Child    @relation(fields: [childId], references: [id])
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+
+  @@index([childId])
 }
 
 model HealthRecord {
@@ -153,6 +171,8 @@ model HealthRecord {
   child     Child    @relation(fields: [childId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([childId])
 }
 
 model Allergy {
@@ -164,6 +184,8 @@ model Allergy {
   child     Child    @relation(fields: [childId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([childId])
 }
 
 model Incident {
@@ -175,6 +197,8 @@ model Incident {
   child     Child    @relation(fields: [childId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([childId])
 }
 
 model Announcement {
@@ -184,6 +208,8 @@ model Announcement {
   audience  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([audience])
 }
 
 model MediaFile {
@@ -195,6 +221,8 @@ model MediaFile {
   child     Child?   @relation(fields: [childId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([childId])
 }
 
 model Invitation {
@@ -210,6 +238,8 @@ model Invitation {
   user      User?     @relation(fields: [userId], references: [id])
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
+
+  @@index([userId])
 }
 
 model AuditLog {
@@ -219,6 +249,8 @@ model AuditLog {
   target    String
   detail    String
   createdAt DateTime @default(now())
+
+  @@index([target])
 }
 
 model AdmissionApplication {
@@ -236,4 +268,6 @@ model AdmissionApplication {
   convertedChildId String?
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
+
+  @@index([status])
 }

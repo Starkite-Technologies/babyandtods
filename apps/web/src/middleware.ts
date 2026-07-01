@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api";
-
 function decode(token: string): { role?: string; exp?: number } | null {
   try {
     const part = token.split(".")[1];
@@ -21,18 +19,12 @@ function dashboardFor(role?: string): string {
   return "/login";
 }
 
-async function liveSessionValid(token: string) {
-  try {
-    const response = await fetch(`${API_BASE}/auth/me`, {
-      headers: { authorization: `Bearer ${token}` },
-      cache: "no-store"
-    });
-    return response.ok;
-  } catch {
-    return false;
-  }
-}
-
+// Note: the API is the source of truth for verification on every read/write
+// (see apps/web/src/lib/auth.ts). Middleware only needs a cheap, local
+// "is this token present and not expired" check to route people to the
+// right place — it must NOT make a network call on every navigation, or
+// every single click into /app/* pays for an extra round trip to the API
+// before Next.js is even allowed to start rendering the requested page.
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const token = request.cookies.get("token")?.value;
@@ -44,8 +36,7 @@ export async function middleware(request: NextRequest) {
   }
 
   const payload = token ? decode(token) : null;
-  const locallyValid = Boolean(payload && (!payload.exp || payload.exp * 1000 > Date.now()));
-  const valid = token && locallyValid ? await liveSessionValid(token) : false;
+  const valid = Boolean(payload && (!payload.exp || payload.exp * 1000 > Date.now()));
 
   // Already signed in -> keep people away from the login screen
   if (pathname === "/login") {

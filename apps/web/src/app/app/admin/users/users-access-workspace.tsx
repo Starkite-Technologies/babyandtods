@@ -2,27 +2,22 @@
 
 import Link from "next/link";
 import { FormEvent, useEffect, useMemo, useRef, useState, useTransition } from "react";
-import { ChevronLeft, ChevronRight, Loader2, Mail, Plus, Search, SlidersHorizontal, UserRoundPlus, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Loader2, Mail, Plus, Search, ShieldCheck, SlidersHorizontal, Trash2, UserRoundPlus, X } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
-import { DataTable } from "@/components/ui/DataTable";
-import type { ApiAccountDirectory, ApiAdminAccessSummary } from "@/lib/api";
+import type { ApiAccountDirectory, ApiAccountDirectoryItem, ApiAdminAccessSummary } from "@/lib/api";
 
 type BadgeTone = "neutral" | "success" | "warning" | "danger" | "info" | "accent";
 
 const emptySummary: ApiAdminAccessSummary = {
   email: { provider: "resend", configured: false, from: "not configured", mode: "unconfigured" },
   counts: { totalAccounts: 0, activeAccounts: 0, invitedAccounts: 0, verificationCount: 0, restrictedAccounts: 0 },
-  invitations: [],
-  auditLogs: [],
-  classrooms: [],
-  children: []
+  classrooms: []
 };
 
 const emptyDirectory: ApiAccountDirectory = {
   page: 1,
-  take: 25,
+  take: 20,
   total: 0,
   totalPages: 1,
   items: []
@@ -37,13 +32,15 @@ async function api<T>(path: string, init?: RequestInit): Promise<T> {
     headers: { "Content-Type": "application/json", ...(init?.headers ?? {}) },
     cache: "no-store"
   });
-  if (!response.ok) throw new Error(await response.text());
-  return response.json() as Promise<T>;
+  const body = await response.text();
+  if (!response.ok) throw new Error(readError(body));
+  return body ? (JSON.parse(body) as T) : ({} as T);
 }
 
 export function UsersAccessWorkspace() {
   const [summary, setSummary] = useState<ApiAdminAccessSummary>(summaryCache ?? emptySummary);
   const [directory, setDirectory] = useState<ApiAccountDirectory>(emptyDirectory);
+  const [selectedId, setSelectedId] = useState("");
   const [search, setSearch] = useState("");
   const [type, setType] = useState("");
   const [status, setStatus] = useState("");
@@ -60,9 +57,12 @@ export function UsersAccessWorkspace() {
     if (type) params.set("type", type);
     if (status) params.set("status", status);
     params.set("page", String(page));
-    params.set("take", "25");
+    params.set("take", "20");
     return params.toString();
   }, [page, search, status, type]);
+
+  const selected = directory.items.find((item) => item.id === selectedId) ?? directory.items[0] ?? null;
+  const onboarding = directory.items.filter((item) => item.onboardingLocked);
 
   async function load() {
     const id = ++requestId.current;
@@ -83,9 +83,9 @@ export function UsersAccessWorkspace() {
       if (id !== requestId.current) return;
 
       if (directoryResult.status === "fulfilled") {
-        const nextDirectory = directoryResult.value;
-        directoryCache.set(query, nextDirectory);
-        setDirectory(nextDirectory);
+        directoryCache.set(query, directoryResult.value);
+        setDirectory(directoryResult.value);
+        setSelectedId((current) => current || directoryResult.value.items[0]?.id || "");
       } else if (!cachedDirectory) {
         setNotice("Could not load live account data. Check that the API is running.");
       }
@@ -93,18 +93,10 @@ export function UsersAccessWorkspace() {
       if (summaryResult.status === "fulfilled") {
         summaryCache = summaryResult.value;
         setSummary(summaryResult.value);
-      } else {
-        setNotice("Account activity could not load. Directory is still available.");
       }
     } finally {
       if (id === requestId.current) setLoading(false);
     }
-  }
-
-  async function refresh() {
-    summaryCache = null;
-    directoryCache.delete(query);
-    await load();
   }
 
   async function reloadAfterWrite() {
@@ -125,6 +117,7 @@ export function UsersAccessWorkspace() {
     setType(String(form.get("type") ?? ""));
     setStatus(String(form.get("status") ?? ""));
     setPage(1);
+    setSelectedId("");
   }
 
   async function createAccount(event: FormEvent<HTMLFormElement>) {
@@ -142,31 +135,39 @@ export function UsersAccessWorkspace() {
     startTransition(async () => {
       try {
         await api("admin-access/staff", { method: "POST", body: JSON.stringify(body) });
-        setNotice("Account created. Invitation email was sent if email is configured.");
+        setNotice("Staff account created and invite sent.");
         setCreateOpen(false);
         await reloadAfterWrite();
-      } catch {
-        setNotice("Account was not created. Check required fields and email configuration.");
+      } catch (error) {
+        setNotice(error instanceof Error ? error.message : "Account was not created.");
       }
     });
   }
 
-  async function sendInvite(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const form = new FormData(event.currentTarget);
+  function resendInvite(account: ApiAccountDirectoryItem) {
     startTransition(async () => {
       try {
         await api("admin-access/invitations/send", {
           method: "POST",
-          body: JSON.stringify({
-            email: String(form.get("email") ?? ""),
-            role: String(form.get("role") ?? "parent")
-          })
+          body: JSON.stringify({ userId: account.id, email: account.email, role: account.role })
         });
-        setNotice("Invitation email sent.");
+        setNotice(`Fresh invite sent to ${account.email}.`);
         await reloadAfterWrite();
       } catch (error) {
-        setNotice(error instanceof Error && error.message ? cleanError(error.message) : "Invitation was not sent. Create the account first and check email configuration.");
+        setNotice(error instanceof Error ? error.message : "Invite was not sent.");
+      }
+    });
+  }
+
+  function cancelParentInvite(account: ApiAccountDirectoryItem) {
+    startTransition(async () => {
+      try {
+        await api(`admin-access/users/${account.id}/onboarding`, { method: "DELETE" });
+        setNotice(`Cancelled ${account.name}'s invite and removed linked learner records.`);
+        setSelectedId("");
+        await reloadAfterWrite();
+      } catch (error) {
+        setNotice(error instanceof Error ? error.message : "Could not cancel onboarding.");
       }
     });
   }
@@ -182,54 +183,58 @@ export function UsersAccessWorkspace() {
         </div>
       )}
 
-      <section className="rounded-[1.5rem] border border-line bg-white p-4 shadow-soft">
-        <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-          <div className="max-w-xl">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-blue">Account governance</p>
-            <h2 className="mt-1 text-2xl font-semibold text-ink">Manage access, invitations, and restrictions.</h2>
-            <p className="mt-2 text-sm leading-6 text-muted">
-              Use filters to find people quickly, then open a profile before changing account access.
+      <section className="relative overflow-hidden rounded-3xl border border-ink/20 bg-white p-5 shadow-soft">
+        <div className="absolute inset-x-0 top-0 h-1.5 bg-rainbow" aria-hidden />
+        <div className="flex flex-wrap items-center justify-between gap-4 pt-3">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wider text-brand-blue">Access desk</p>
+            <h2 className="mt-1 text-2xl font-semibold text-ink">Find the account, then manage the access layer.</h2>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-muted">
+              Parents created from admissions stay invited until they set a password. Admin can re-send their invite or cancel the whole onboarding package.
             </p>
           </div>
-          <div className="flex flex-col gap-3 xl:min-w-[720px]">
-            <div className="flex flex-wrap justify-end gap-2">
-              <Button size="sm" onClick={() => setCreateOpen(true)}>
-                <UserRoundPlus className="h-4 w-4" />
-                New staff
-              </Button>
-              <Button size="sm" variant="secondary" onClick={() => void refresh()} disabled={loading}>
-                {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-                Refresh
-              </Button>
+          <div className="flex items-center gap-2 rounded-3xl border border-line bg-paper p-2">
+            <div className="rounded-2xl bg-white px-4 py-3">
+              <p className="text-2xl font-semibold text-ink">{onboarding.length}</p>
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted">waiting setup</p>
             </div>
-            <div className="grid gap-2 sm:grid-cols-5">
-              <MiniMetric label="Total" value={summary.counts.totalAccounts} />
-              <MiniMetric label="Active" value={summary.counts.activeAccounts} tone="success" />
-              <MiniMetric label="Invited" value={summary.counts.invitedAccounts} tone="warning" />
-              <MiniMetric label="Verify" value={summary.counts.verificationCount} tone="accent" />
-              <MiniMetric label="Blocked" value={summary.counts.restrictedAccounts} tone="danger" />
-            </div>
+            <Button size="sm" onClick={() => setCreateOpen(true)}>
+              <UserRoundPlus className="h-4 w-4" />
+              New staff
+            </Button>
           </div>
+        </div>
+
+        <div className="mt-5 grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
+          <Metric label="Total" value={summary.counts.totalAccounts} />
+          <Metric label="Active" value={summary.counts.activeAccounts} tone="success" />
+          <Metric label="Invited" value={summary.counts.invitedAccounts} tone="warning" />
+          <Metric label="Review" value={summary.counts.verificationCount} tone="accent" />
+          <Metric label="Blocked" value={summary.counts.restrictedAccounts} tone="danger" />
         </div>
       </section>
 
-      <div className="grid gap-5 xl:grid-cols-[1fr_360px]">
-        <Card
-          title="Account directory"
-          description={loading ? "Loading live accounts..." : `Showing ${directory.items.length} of ${directory.total} accounts`}
-          action={loading ? <Loader2 className="h-4 w-4 animate-spin text-brand-blue" /> : <Badge tone="info">Page {directory.page} / {directory.totalPages}</Badge>}
-        >
-          <form onSubmit={applyFilters} className="mb-4 grid gap-3 lg:grid-cols-[1fr_150px_170px_auto]">
-            <label className="relative">
-              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
-              <input name="search" defaultValue={search} placeholder="Search name or email" className="h-11 w-full rounded-full border border-line bg-white pl-9 pr-4 text-sm outline-none focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/10" />
+      <section className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_420px]">
+        <div className="rounded-3xl border border-line bg-white p-5 shadow-soft">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted">Directory</p>
+              <h3 className="mt-1 text-lg font-semibold text-ink">Accounts</h3>
+            </div>
+            {loading ? <Loader2 className="h-5 w-5 animate-spin text-brand-blue" /> : <Badge tone="info">Page {directory.page} / {directory.totalPages}</Badge>}
+          </div>
+
+          <form onSubmit={applyFilters} className="mt-5 grid gap-3 lg:grid-cols-[1fr_150px_170px_auto]">
+            <label className="flex h-11 items-center gap-2 rounded-2xl border border-line bg-paper px-3 text-sm text-muted">
+              <Search className="h-4 w-4" />
+              <input name="search" defaultValue={search} placeholder="Search name or email" className="w-full bg-transparent text-ink outline-none placeholder:text-muted" />
             </label>
-            <select name="type" defaultValue={type} className="h-11 rounded-full border border-line bg-white px-4 text-sm outline-none focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/10">
+            <select name="type" defaultValue={type} className="field h-11 rounded-2xl">
               <option value="">All people</option>
               <option value="staff">Staff</option>
               <option value="parent">Parents</option>
             </select>
-            <select name="status" defaultValue={status} className="h-11 rounded-full border border-line bg-white px-4 text-sm outline-none focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/10">
+            <select name="status" defaultValue={status} className="field h-11 rounded-2xl">
               <option value="">All statuses</option>
               <option value="active">Active</option>
               <option value="invited">Invited</option>
@@ -242,23 +247,39 @@ export function UsersAccessWorkspace() {
             </Button>
           </form>
 
-          <DataTable
-            columns={["Name", "Type", "Role", "Linked to", "Status", "Last login"]}
-            rowHref={(index) => `/app/admin/users/${directory.items[index]?.id}`}
-            rows={directory.items.map((account) => [
-              account.name,
-              account.kind,
-              account.role,
-              account.primaryLink,
-              statusBadge(account.status),
-              displayDate(account.lastLogin)
-            ])}
-            empty={loading ? "Loading..." : "No accounts match this filter."}
-          />
+          <div className="mt-5 overflow-hidden rounded-2xl border border-line">
+            <div className="grid grid-cols-[1.1fr_120px_1fr_120px] bg-paper px-4 py-3 text-xs font-semibold uppercase tracking-wider text-muted max-lg:hidden">
+              <span>Person</span>
+              <span>Type</span>
+              <span>Linked to</span>
+              <span>Status</span>
+            </div>
+            <div className="divide-y divide-line">
+              {directory.items.map((account) => (
+                <button
+                  key={account.id}
+                  type="button"
+                  onClick={() => setSelectedId(account.id)}
+                  className={`grid w-full gap-3 px-4 py-4 text-left transition hover:bg-sky-50/70 lg:grid-cols-[1.1fr_120px_1fr_120px] lg:items-center ${selected?.id === account.id ? "bg-sky-50" : "bg-white"}`}
+                >
+                  <span>
+                    <span className="block font-semibold text-ink">{account.name}</span>
+                    <span className="mt-1 block truncate text-xs text-muted">{account.email}</span>
+                  </span>
+                  <span className="text-sm capitalize text-muted">{account.kind}</span>
+                  <span className="text-sm text-ink">{account.primaryLink}</span>
+                  <span>{statusBadge(account.status)}</span>
+                </button>
+              ))}
+              {directory.items.length === 0 && (
+                <p className="p-8 text-center text-sm text-muted">{loading ? "Loading accounts..." : "No accounts match this view."}</p>
+              )}
+            </div>
+          </div>
 
-          <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-sm text-muted">Open a row to manage the full profile.</p>
-            <div className="flex gap-2">
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+            <p className="text-sm text-muted">Showing {directory.items.length} of {directory.total}</p>
+            <div className="flex items-center gap-2">
               <Button disabled={directory.page <= 1 || loading} onClick={() => setPage((p) => Math.max(p - 1, 1))} size="sm" variant="secondary">
                 <ChevronLeft className="h-4 w-4" />
                 Previous
@@ -269,48 +290,10 @@ export function UsersAccessWorkspace() {
               </Button>
             </div>
           </div>
-        </Card>
+        </div>
 
-        <aside className="space-y-5">
-          <Card title="Re-send invite" description="Send a fresh invitation to an existing account.">
-            <form onSubmit={sendInvite} className="space-y-3">
-              <input name="email" type="email" placeholder="person@email.com" required className="h-11 w-full rounded-xl border border-line bg-white px-3 text-sm outline-none focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/10" />
-              <select name="role" className="h-11 w-full rounded-xl border border-line bg-white px-3 text-sm outline-none focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/10">
-                <option value="teacher">Staff</option>
-                <option value="finance">Finance</option>
-                <option value="admin">Admin</option>
-              </select>
-              <Button disabled={isPending} type="submit" className="w-full" variant="secondary">
-                {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
-                Send fresh invite
-              </Button>
-            </form>
-          </Card>
-
-          <Card
-            title="Email status"
-            description={summary.email.configured ? "Ready to send real invitations." : "Configure email before inviting users."}
-            action={<Badge tone={summary.email.configured ? "success" : "danger"}>{summary.email.mode}</Badge>}
-          >
-            <div className="space-y-2 text-sm">
-              <InfoLine label="Provider" value={summary.email.provider} />
-              <InfoLine label="From" value={summary.email.from} />
-            </div>
-          </Card>
-
-          <Card title="Recent activity" description="Latest access events only.">
-            <div className="space-y-3">
-              {summary.auditLogs.length === 0 && <p className="text-sm text-muted">No access events yet.</p>}
-              {summary.auditLogs.slice(0, 4).map((log) => (
-                <Link key={log.id} href="/app/admin/users" className="block rounded-2xl border border-line bg-white p-3 transition hover:border-brand-blue/40">
-                  <p className="text-sm font-medium text-ink">{log.event.replaceAll("_", " ")}</p>
-                  <p className="mt-1 truncate text-xs text-muted">{log.target}</p>
-                </Link>
-              ))}
-            </div>
-          </Card>
-        </aside>
-      </div>
+        <AccessPanel account={selected} pending={isPending} resendInvite={resendInvite} cancelParentInvite={cancelParentInvite} emailConfigured={summary.email.configured} />
+      </section>
 
       {createOpen && (
         <div className="fixed inset-0 z-50 flex items-end bg-ink/25 p-3 backdrop-blur-sm sm:items-center sm:justify-center">
@@ -319,7 +302,7 @@ export function UsersAccessWorkspace() {
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted">Create staff account</p>
                 <h3 className="mt-1 text-2xl font-semibold text-ink">Staff access is created here.</h3>
-                <p className="mt-2 text-sm leading-6 text-muted">Parent accounts are created only through approved admissions and learner enrolment.</p>
+                <p className="mt-2 text-sm leading-6 text-muted">Parent accounts are created through approved admissions and learner enrolment.</p>
               </div>
               <button onClick={() => setCreateOpen(false)} className="rounded-full border border-line bg-white p-2 text-muted transition hover:text-ink" aria-label="Close">
                 <X className="h-4 w-4" />
@@ -350,7 +333,88 @@ export function UsersAccessWorkspace() {
   );
 }
 
-function MiniMetric({ label, value, tone = "info" }: { label: string; value: number; tone?: BadgeTone }) {
+function AccessPanel({
+  account,
+  pending,
+  resendInvite,
+  cancelParentInvite,
+  emailConfigured
+}: {
+  account: ApiAccountDirectoryItem | null;
+  pending: boolean;
+  resendInvite: (account: ApiAccountDirectoryItem) => void;
+  cancelParentInvite: (account: ApiAccountDirectoryItem) => void;
+  emailConfigured: boolean;
+}) {
+  if (!account) {
+    return (
+      <aside className="rounded-3xl border border-dashed border-line bg-white p-8 text-center shadow-soft">
+        <ShieldCheck className="mx-auto h-8 w-8 text-muted" />
+        <p className="mt-3 font-semibold text-ink">No account selected</p>
+        <p className="mt-1 text-sm text-muted">Choose a person from the directory to manage access.</p>
+      </aside>
+    );
+  }
+
+  return (
+    <aside className="xl:sticky xl:top-24 xl:self-start">
+      <article className="overflow-hidden rounded-3xl border border-ink/15 bg-white shadow-soft">
+        <div className="h-1.5 bg-rainbow" />
+        <div className="p-5">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted">Selected account</p>
+              <h3 className="mt-1 truncate text-xl font-semibold text-ink">{account.name}</h3>
+              <p className="mt-1 truncate text-sm text-muted">{account.email}</p>
+            </div>
+            {statusBadge(account.status)}
+          </div>
+
+          <div className="mt-5 grid gap-3">
+            <InfoLine label="Type" value={account.kind} />
+            <InfoLine label="Role" value={account.role} />
+            <InfoLine label="Linked to" value={account.primaryLink} />
+            <InfoLine label="Last login" value={displayDate(account.lastLogin)} />
+          </div>
+
+          {account.onboardingLocked && (
+            <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-950">
+              This parent is invited but has not created a password yet. Re-send the invite, or cancel the application package and delete the linked learner.
+            </div>
+          )}
+        </div>
+
+        <div className="space-y-3 border-t border-line bg-paper p-5">
+          {account.onboardingLocked ? (
+            <>
+              <Button disabled={pending || !emailConfigured} type="button" onClick={() => resendInvite(account)} className="w-full" variant="secondary">
+                {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
+                Re-send invite link
+              </Button>
+              <Button disabled={pending} type="button" onClick={() => cancelParentInvite(account)} className="w-full !border-red-200 !text-red-700 hover:!bg-red-50" variant="outline">
+                <Trash2 className="h-4 w-4" />
+                Delete application & learner
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button href={`/app/admin/users/${account.id}`} className="w-full" variant="secondary">
+                Open full profile
+              </Button>
+              <Button disabled={pending || !emailConfigured} type="button" onClick={() => resendInvite(account)} className="w-full" variant="secondary">
+                {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
+                Send invite link
+              </Button>
+            </>
+          )}
+          {!emailConfigured && <p className="text-xs leading-5 text-muted">Email must be configured before sending invitations.</p>}
+        </div>
+      </article>
+    </aside>
+  );
+}
+
+function Metric({ label, value, tone = "info" }: { label: string; value: number; tone?: BadgeTone }) {
   const toneClass = tone === "success"
     ? "text-brand-green"
     : tone === "danger"
@@ -361,9 +425,9 @@ function MiniMetric({ label, value, tone = "info" }: { label: string; value: num
           ? "text-brand-blue"
           : "text-ink";
   return (
-    <div className="rounded-2xl border border-line bg-white px-3 py-2 shadow-sm">
-      <p className="text-[11px] font-semibold uppercase tracking-wider text-muted">{label}</p>
-      <p className={`mt-1 text-xl font-semibold ${toneClass}`}>{value}</p>
+    <div className="rounded-2xl border border-line bg-paper p-3">
+      <p className={`text-xl font-semibold ${toneClass}`}>{value}</p>
+      <p className="mt-1 text-[11px] font-semibold uppercase tracking-wider text-muted">{label}</p>
     </div>
   );
 }
@@ -395,16 +459,16 @@ function Select({ name, label, options }: { name: string; label: string; options
 
 function InfoLine({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex justify-between gap-3 rounded-xl border border-line bg-white px-3 py-2">
+    <div className="flex justify-between gap-3 rounded-2xl border border-line bg-paper px-3 py-2 text-sm">
       <span className="text-muted">{label}</span>
-      <span className="truncate font-medium text-ink">{value}</span>
+      <span className="truncate text-right font-medium capitalize text-ink">{value}</span>
     </div>
   );
 }
 
 function statusBadge(status: string) {
   const tone: BadgeTone = status === "active" ? "success" : status === "suspended" || status === "archived" ? "danger" : status === "pending_verification" ? "warning" : status === "invited" ? "info" : "neutral";
-  return { kind: "badge" as const, text: status.replace("_", " "), tone };
+  return <Badge tone={tone}>{status.replace("_", " ")}</Badge>;
 }
 
 function displayDate(value?: string | null) {
@@ -412,11 +476,11 @@ function displayDate(value?: string | null) {
   return new Intl.DateTimeFormat("en-GB", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" }).format(new Date(value));
 }
 
-function cleanError(message: string) {
+function readError(body: string) {
   try {
-    const parsed = JSON.parse(message);
-    return parsed.message ?? message;
+    const parsed = JSON.parse(body);
+    return Array.isArray(parsed.message) ? parsed.message[0] : parsed.message ?? "Request failed";
   } catch {
-    return message.replace(/^API error:\s*/i, "");
+    return body || "Request failed";
   }
 }

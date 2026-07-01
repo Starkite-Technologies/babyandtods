@@ -7,6 +7,7 @@ export class StaffService {
   list() {
     return this.prisma.staff.findMany({
       include: { user: true, classrooms: true },
+      relationLoadStrategy: "join",
       orderBy: { roleTitle: "asc" }
     });
   }

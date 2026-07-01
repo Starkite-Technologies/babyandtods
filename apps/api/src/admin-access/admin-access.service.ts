@@ -15,17 +15,34 @@ export class AdminAccessService {
   ) {}
 
   async summary() {
-    const [totalAccounts, activeAccounts, invitedAccounts, verificationCount, restrictedAccounts, invitations, auditLogs, classrooms, children] = await Promise.all([
-      this.prisma.user.count(),
-      this.prisma.user.count({ where: { accountStatus: "active" } }),
-      this.prisma.user.count({ where: { accountStatus: "invited" } }),
-      this.prisma.user.count({ where: { accountStatus: { in: ["pending_verification", "invited"] } } }),
-      this.prisma.user.count({ where: { accountStatus: { in: ["suspended", "archived"] } } }),
-      this.prisma.invitation.findMany({ orderBy: { createdAt: "desc" }, take: 10 }),
-      this.prisma.auditLog.findMany({ orderBy: { createdAt: "desc" }, take: 10 }),
-      this.prisma.classroom.findMany({ orderBy: { name: "asc" } }),
-      this.prisma.child.findMany({ orderBy: { name: "asc" } })
-    ]);
+    // Trimmed to only what the Users & Access screen actually renders
+    // (counts, email status, classrooms for the assignment dropdown).
+    // This used to also fetch the 10 most recent invitations, 10 most
+    // recent audit logs, and every single child in the school on every
+    // load of this page even though nothing in the UI displays them —
+    // each of those was its own database round trip, and on this
+    // connection every round trip costs the better part of a second, so
+    // cutting 3 unused queries meaningfully speeds up (and de-risks) this
+    // endpoint.
+    let totalAccounts: number, activeAccounts: number, invitedAccounts: number, verificationCount: number, restrictedAccounts: number, classrooms: Awaited<ReturnType<typeof this.prisma.classroom.findMany>>;
+    try {
+      [totalAccounts, activeAccounts, invitedAccounts, verificationCount, restrictedAccounts, classrooms] = await Promise.all([
+        this.prisma.user.count(),
+        this.prisma.user.count({ where: { accountStatus: "active" } }),
+        this.prisma.user.count({ where: { accountStatus: "invited" } }),
+        this.prisma.user.count({ where: { accountStatus: { in: ["pending_verification", "invited"] } } }),
+        this.prisma.user.count({ where: { accountStatus: { in: ["suspended", "archived"] } } }),
+        this.prisma.classroom.findMany({ orderBy: { name: "asc" } })
+      ]);
+    } catch (error) {
+      // TEMPORARY DIAGNOSTIC — this endpoint has been intermittently
+      // returning 500s. Log the real Prisma/DB error (not just "500") so
+      // we can see whether it's a connection pool timeout, a network
+      // error, etc. Safe to remove this try/catch once the cause is fixed.
+      // eslint-disable-next-line no-console
+      console.error("[admin-access.summary] query failed:", error);
+      throw error;
+    }
 
     return {
       email: this.email.getStatus(),
@@ -36,10 +53,7 @@ export class AdminAccessService {
         verificationCount,
         restrictedAccounts
       },
-      invitations,
-      auditLogs,
-      classrooms,
-      children
+      classrooms
     };
   }
 
@@ -71,6 +85,10 @@ export class AdminAccessService {
           staff: { include: { classrooms: true } },
           parent: { include: { children: true } }
         },
+        // Load the staff/parent relations via a single SQL join instead of
+        // one extra round trip per relation — see children.service.ts for
+        // the full explanation.
+        relationLoadStrategy: "join",
         orderBy: { name: "asc" },
         skip,
         take
@@ -93,7 +111,8 @@ export class AdminAccessService {
         staff: { include: { classrooms: true, reports: { orderBy: { date: "desc" }, take: 5 } } },
         parent: { include: { children: { include: { classroom: true } }, invoices: { include: { payments: true }, orderBy: { dueDate: "desc" }, take: 6 } } },
         invitations: { orderBy: { createdAt: "desc" }, take: 8 }
-      }
+      },
+      relationLoadStrategy: "join"
     });
 
     if (!user) throw new NotFoundException("User not found");
@@ -405,6 +424,7 @@ export class AdminAccessService {
       kind: isParent ? "parent" : user.staff ? "staff" : "user",
       phone: user.parent?.phone ?? "Not captured",
       status: this.accountStatus(user),
+      onboardingLocked: Boolean(user.parent && !user.passwordHash),
       lastLogin: user.lastLoginAt,
       invitedAt: user.invitedAt,
       verifiedAt: user.verifiedAt,

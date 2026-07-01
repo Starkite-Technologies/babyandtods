@@ -79,10 +79,7 @@ export type ApiAdminAccessSummary = {
     verificationCount: number;
     restrictedAccounts: number;
   };
-  invitations: ApiAdminInvitation[];
-  auditLogs: ApiAdminAuditLog[];
   classrooms: ApiClassroom[];
-  children: ApiChild[];
 };
 
 export type ApiAccountDirectoryItem = {
@@ -91,6 +88,7 @@ export type ApiAccountDirectoryItem = {
   email: string;
   role: string;
   kind: "staff" | "parent" | "user";
+  onboardingLocked?: boolean;
   phone: string;
   status: string;
   lastLogin?: string | null;

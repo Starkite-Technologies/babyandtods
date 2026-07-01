@@ -37,3 +37,7 @@ export async function POST(request: NextRequest, context: { params: Promise<{ pa
 export async function PATCH(request: NextRequest, context: { params: Promise<{ path: string[] }> }) {
   return forward(request, context);
 }
+
+export async function DELETE(request: NextRequest, context: { params: Promise<{ path: string[] }> }) {
+  return forward(request, context);
+}

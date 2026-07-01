@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft, LockKeyhole, Mail, ShieldCheck, Trash2, UserCheck, UserX } from "lucide-react";
+import { ArrowLeft, LockKeyhole, ShieldCheck, Trash2, UserCheck, UserX } from "lucide-react";
 import { notFound, redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { Shell } from "@/components/dashboard/Shell";
@@ -7,14 +7,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { DataTable } from "@/components/ui/DataTable";
-import {
-  cancelParentOnboardingAction,
-  restoreAccountAction,
-  sendInvitationAction,
-  suspendAccountAction,
-  verifyAccountAction,
-  deleteAccountAction
-} from "@/lib/actions";
+import { restoreAccountAction, suspendAccountAction, verifyAccountAction, deleteAccountAction } from "@/lib/actions";
 import { apiClient, safe, formatMoney, type ApiAdminUserProfile } from "@/lib/api";
 
 export const dynamic = "force-dynamic";
@@ -45,33 +38,11 @@ async function restore(formData: FormData) {
   revalidatePath("/app/admin/users");
 }
 
-async function invite(formData: FormData) {
-  "use server";
-  const id = String(formData.get("userId") ?? "");
-  await sendInvitationAction({
-    userId: id,
-    email: String(formData.get("email") ?? ""),
-    role: String(formData.get("role") ?? "")
-  });
-  revalidatePath(`/app/admin/users/${id}`);
-  revalidatePath("/app/admin/users");
-}
-
 async function deleteAccount(formData: FormData) {
   "use server";
   const id = String(formData.get("userId") ?? "");
   await deleteAccountAction(id);
   revalidatePath("/app/admin/users");
-  redirect("/app/admin/users");
-}
-
-async function cancelOnboarding(formData: FormData) {
-  "use server";
-  const id = String(formData.get("userId") ?? "");
-  await cancelParentOnboardingAction(id);
-  revalidatePath("/app/admin/users");
-  revalidatePath("/app/admin/learners");
-  revalidatePath("/app/admin/admissions");
   redirect("/app/admin/users");
 }
 
@@ -123,29 +94,11 @@ export default async function UserProfilePage({ params }: { params: Promise<{ id
                 Initial admin account
               </div>
               <p className="mt-2 text-muted">
-                This account cannot be suspended, restored, reinvited, or disabled from the admin portal.
+                This account cannot be suspended, restored, or disabled from the admin portal.
               </p>
             </div>
           ) : (
             <div className="mt-6 grid gap-2">
-              <form action={invite}>
-                <input type="hidden" name="userId" value={profile.id} />
-                <input type="hidden" name="email" value={profile.email} />
-                <input type="hidden" name="role" value={profile.role} />
-                <Button className="w-full" variant="secondary" type="submit">
-                  <Mail className="h-4 w-4" />
-                  Re-send invite
-                </Button>
-              </form>
-              {profile.onboardingLocked && (
-                <form action={cancelOnboarding}>
-                  <input type="hidden" name="userId" value={profile.id} />
-                  <Button className="w-full !border-red-200 !text-red-700 hover:!bg-red-50" variant="outline" type="submit">
-                    <Trash2 className="h-4 w-4" />
-                    Cancel invite & delete learner
-                  </Button>
-                </form>
-              )}
               <form action={verify}>
                 <input type="hidden" name="userId" value={profile.id} />
                 <Button className="w-full" type="submit">

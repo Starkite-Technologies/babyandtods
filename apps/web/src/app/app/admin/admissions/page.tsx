@@ -259,19 +259,9 @@ function ApplicationPanel({
           <div className="grid grid-cols-2 gap-2">
             <DecisionButton id={application.id} status="approved" icon={<CheckCircle2 className="h-4 w-4" />}>Approve</DecisionButton>
             <DecisionButton id={application.id} status="rejected" danger icon={<XCircle className="h-4 w-4" />}>Reject</DecisionButton>
+            <DecisionButton id={application.id} status="tour-booked" secondary icon={<CalendarDays className="h-4 w-4" />}>Book tour</DecisionButton>
+            <DecisionButton id={application.id} status="waitlisted" secondary icon={<ClipboardCheck className="h-4 w-4" />}>Waitlist</DecisionButton>
           </div>
-
-          <form action={updateAdmissionStatusAction} className="space-y-3">
-            <input type="hidden" name="id" value={application.id} />
-            <label className="text-xs font-semibold uppercase tracking-wider text-muted" htmlFor={`status-${application.id}`}>Move status</label>
-            <select id={`status-${application.id}`} name="status" defaultValue={application.status} className="field">
-              {orderedStatuses.map((status) => (
-                <option key={status} value={status}>{labelStatus(status)}</option>
-              ))}
-            </select>
-            <textarea name="adminNote" defaultValue={application.adminNote ?? ""} rows={2} placeholder="Admin note" className="field min-h-20 resize-none" />
-            <Button type="submit" size="sm" variant="secondary" className="w-full">Save status</Button>
-          </form>
 
           <form action={enrolAdmissionAction} className="space-y-3 border-t border-line pt-3">
             <input type="hidden" name="id" value={application.id} />
@@ -313,20 +303,22 @@ function DecisionButton({
   status,
   children,
   icon,
-  danger
+  danger,
+  secondary
 }: {
   id: string;
   status: ApiAdmissionApplication["status"];
   children: ReactNode;
   icon: ReactNode;
   danger?: boolean;
+  secondary?: boolean;
 }) {
   return (
     <form action={updateAdmissionStatusAction}>
       <input type="hidden" name="id" value={id} />
       <input type="hidden" name="status" value={status} />
       <input type="hidden" name="adminNote" value="" />
-      <Button type="submit" size="sm" variant={danger ? "outline" : "primary"} className={danger ? "w-full !border-red-200 !text-red-700 hover:!bg-red-50" : "w-full"}>
+      <Button type="submit" size="sm" variant={danger || secondary ? "outline" : "primary"} className={danger ? "w-full !border-red-200 !text-red-700 hover:!bg-red-50" : "w-full"}>
         {icon} {children}
       </Button>
     </form>

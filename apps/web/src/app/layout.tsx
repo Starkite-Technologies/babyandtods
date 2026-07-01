@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Fraunces, Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
+import { NavTimer } from "@/components/dev/NavTimer";
 
 const sans = Inter({
   subsets: ["latin"],
@@ -39,7 +40,11 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={`${sans.variable} ${display.variable} ${mono.variable}`}>
-      <body className="bg-paper text-ink antialiased">{children}</body>
+      <body className="bg-paper text-ink antialiased">
+        {children}
+        {/* TEMPORARY: remove this line + the import above once you're done measuring click-to-page ms */}
+        <NavTimer />
+      </body>
     </html>
   );
 }

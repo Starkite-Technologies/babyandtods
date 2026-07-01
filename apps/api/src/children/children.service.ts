@@ -8,6 +8,11 @@ export class ChildrenService {
   list() {
     return this.prisma.child.findMany({
       include: { classroom: true, parent: { include: { user: true } } },
+      // Fetch the related classroom/parent/user in one SQL query (a join)
+      // instead of Prisma's default of one extra round trip per relation.
+      // On a connection where each round trip costs ~1s, that turned a
+      // 2-relation query into ~2s all by itself.
+      relationLoadStrategy: "join",
       orderBy: { name: "asc" }
     });
   }
@@ -25,7 +30,11 @@ export class ChildrenService {
         incidents: { orderBy: { date: "desc" } },
         healthRecords: true,
         mediaFiles: { orderBy: { createdAt: "desc" }, take: 24 }
-      }
+      },
+      // This one has 7 relations. At ~1s per relation round trip that was
+      // a ~7s page load — a single joined query collapses it back to
+      // roughly the cost of one round trip.
+      relationLoadStrategy: "join"
     });
     if (!child) throw new NotFoundException("Child not found");
     return child;

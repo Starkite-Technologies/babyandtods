@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
 import { cn } from "@/lib/cn";
 
@@ -18,10 +19,11 @@ export function Logo({
   return (
     <Link href={href} className="group inline-flex items-center gap-3">
       {imgOk ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
+        <Image
           src="/images/babies-todds-academy-logo.png"
           alt="Babies & Todd's Academy"
+          width={56}
+          height={56}
           onError={() => setImgOk(false)}
           className="h-14 w-14 shrink-0 rounded-full border-2 border-white bg-white object-contain p-0.5 shadow-lift transition-transform duration-300 group-hover:-rotate-3 group-hover:scale-105"
         />
