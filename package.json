@@ -7,6 +7,7 @@
     "packages/*"
   ],
   "scripts": {
+    "postinstall": "npm run build -w @babies-tods/shared && npm run prisma:generate -w @babies-tods/api",
     "dev": "concurrently \"npm run dev -w @babies-tods/web\" \"npm run dev -w @babies-tods/api\" \"npm run dev:browser\"",
     "edv": "npm run dev",
     "dev:browser": "node scripts/open-dev-browser.js",
